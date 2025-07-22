@@ -19,7 +19,7 @@ export function useApiValidation(): ApiValidationResult {
     const validateApiKey = async () => {
       try {
         setIsValidating(true)
-        
+
         const response = await fetch('/api/validate', {
           method: 'GET',
           cache: 'no-store', // Always check fresh, don't cache API key validation
@@ -61,6 +61,6 @@ export function useApiValidation(): ApiValidationResult {
     isValidating,
     isValid,
     showApiKeyError,
-    user
+    user,
   }
-} 
+}

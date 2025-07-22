@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MoreVerticalIcon, TrashIcon } from 'lucide-react'
-import { ProjectDropdown, ChatDropdown } from '../projects/[projectId]/chats/[chatId]/components'
+import {
+  ProjectDropdown,
+  ChatDropdown,
+} from '../projects/[projectId]/chats/[chatId]/components'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,35 +30,35 @@ interface PromptComponentProps {
   // Initial state
   initialPrompt?: string
   initialExpanded?: boolean
-  
+
   // Data for dropdowns (optional)
   projects?: any[]
   projectChats?: any[]
   currentProjectId?: string
   currentChatId?: string
-  
+
   // Optional chat data for v0.dev link
   chatData?: any
-  
+
   // Submit handler - different behavior for homepage vs chat pages
   onSubmit: (prompt: string) => Promise<void>
-  
+
   // Loading state from parent
   isLoading: boolean
-  
+
   // Error state from parent
   error: string | null
-  
+
   // Placeholder text
   placeholder?: string
-  
+
   // Show dropdowns?
   showDropdowns?: boolean
-  
+
   // Callbacks for dropdown changes
   onProjectChange?: (projectId: string) => void
   onChatChange?: (chatId: string) => void
-  
+
   // Delete callbacks
   onDeleteChat?: () => Promise<void>
 }
@@ -122,7 +125,7 @@ export default function PromptComponent({
 
     setIsPromptExpanded(false) // Hide prompt bar on submit
     setShouldAnimate(false) // Reset animation state
-    
+
     try {
       await onSubmit(prompt.trim())
       // Clear the prompt after successful submission
@@ -155,7 +158,9 @@ export default function PromptComponent({
 
       {/* Premium Prompt Area */}
       {isPromptExpanded && (
-        <div className={`fixed inset-x-0 bottom-0 z-30 pointer-events-none ${shouldAnimate ? 'animate-slide-up' : ''}`}>
+        <div
+          className={`fixed inset-x-0 bottom-0 z-30 pointer-events-none ${shouldAnimate ? 'animate-slide-up' : ''}`}
+        >
           {/* Main prompt container */}
           <div className="mx-auto max-w-4xl px-6 pb-8 pointer-events-auto">
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-white/50">
@@ -166,7 +171,11 @@ export default function PromptComponent({
                     {/* Input field */}
                     <textarea
                       ref={(textarea) => {
-                        if (textarea && isPromptExpanded && prompt.length === 1) {
+                        if (
+                          textarea &&
+                          isPromptExpanded &&
+                          prompt.length === 1
+                        ) {
                           setTimeout(() => {
                             textarea.focus()
                             textarea.setSelectionRange(
@@ -195,7 +204,8 @@ export default function PromptComponent({
                       onInput={(e) => {
                         const target = e.target as HTMLTextAreaElement
                         target.style.height = 'auto'
-                        target.style.height = Math.min(target.scrollHeight, 200) + 'px' // Max height of 200px
+                        target.style.height =
+                          Math.min(target.scrollHeight, 200) + 'px' // Max height of 200px
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -210,7 +220,12 @@ export default function PromptComponent({
                       type="submit"
                       disabled={isLoading || !prompt.trim()}
                       className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-12 rounded-xl text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
-                      style={{ width: 'fit-content', minWidth: '48px', paddingLeft: '12px', paddingRight: '12px' }}
+                      style={{
+                        width: 'fit-content',
+                        minWidth: '48px',
+                        paddingLeft: '12px',
+                        paddingRight: '12px',
+                      }}
                     >
                       {isLoading ? (
                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-600 border-t-transparent"></div>
@@ -238,15 +253,15 @@ export default function PromptComponent({
                       {/* Project and Chat Dropdowns */}
                       {showDropdowns && currentProjectId ? (
                         <>
-                          <ProjectDropdown 
-                            currentProjectId={currentProjectId} 
-                            currentChatId={currentChatId || 'new'} 
+                          <ProjectDropdown
+                            currentProjectId={currentProjectId}
+                            currentChatId={currentChatId || 'new'}
                             projects={projects}
                             onProjectChange={onProjectChange}
                           />
-                          <ChatDropdown 
-                            projectId={currentProjectId} 
-                            currentChatId={currentChatId || 'new'} 
+                          <ChatDropdown
+                            projectId={currentProjectId}
+                            currentChatId={currentChatId || 'new'}
                             chats={projectChats}
                             onChatChange={onChatChange}
                           />
@@ -272,44 +287,57 @@ export default function PromptComponent({
                           View on v0.dev
                         </a>
                       )}
-                      
+
                       {/* More Options Menu */}
                       {showDropdowns && currentProjectId && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
                               <MoreVerticalIcon className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" side="top">
                             {/* Delete Chat */}
-                            {currentChatId && currentChatId !== 'new' && onDeleteChat && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <TrashIcon className="mr-2 h-4 w-4" />
-                                    Delete Chat
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Chat</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete this chat? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={onDeleteChat}
-                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            {currentChatId &&
+                              currentChatId !== 'new' &&
+                              onDeleteChat && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem
+                                      onSelect={(e) => e.preventDefault()}
                                     >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
+                                      <TrashIcon className="mr-2 h-4 w-4" />
+                                      Delete Chat
+                                    </DropdownMenuItem>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>
+                                        Delete Chat
+                                      </AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete this
+                                        chat? This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={onDeleteChat}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}
@@ -329,4 +357,4 @@ export default function PromptComponent({
       )}
     </>
   )
-} 
+}

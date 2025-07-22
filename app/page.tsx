@@ -51,7 +51,7 @@ export default function HomePage() {
         const projectsData = data.data || data || []
         setProjects(projectsData)
         setProjectsLoaded(true)
-        
+
         // Store in sessionStorage for next time
         try {
           sessionStorage.setItem('projects', JSON.stringify(projectsData))
@@ -92,10 +92,13 @@ export default function HomePage() {
         const data = await response.json()
         const chatsData = data.chats || []
         setProjectChats(chatsData)
-        
+
         // Store in sessionStorage for next time
         try {
-          sessionStorage.setItem(`project-chats-${projectId}`, JSON.stringify(chatsData))
+          sessionStorage.setItem(
+            `project-chats-${projectId}`,
+            JSON.stringify(chatsData),
+          )
         } catch (err) {
           // Silently handle cache storage errors
         }
@@ -138,13 +141,13 @@ export default function HomePage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        
+
         // Check for API key error
         if (response.status === 401 && errorData.error === 'API_KEY_MISSING') {
           // API key error is now handled by useApiValidation hook
           return
         }
-        
+
         throw new Error(errorData.error || 'Failed to generate app')
       }
 

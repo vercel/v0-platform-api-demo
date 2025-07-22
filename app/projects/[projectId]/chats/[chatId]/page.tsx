@@ -24,11 +24,11 @@ export default function ChatPage() {
 
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
-  
+
   // Track if user has selected "new" options in dropdowns
   const [selectedProjectId, setSelectedProjectId] = useState(projectId)
   const [selectedChatId, setSelectedChatId] = useState(
-    chatId === 'new-chat' ? 'new' : chatId
+    chatId === 'new-chat' ? 'new' : chatId,
   )
 
   // Load existing chat data when component mounts (only if API is valid)
@@ -67,10 +67,13 @@ export default function ChatPage() {
         const chatsData = data.chats || []
         setProjectChats(chatsData)
         setProjectChatsLoaded(true)
-        
+
         // Store in sessionStorage for next time
         try {
-          sessionStorage.setItem(`project-chats-${projectId}`, JSON.stringify(chatsData))
+          sessionStorage.setItem(
+            `project-chats-${projectId}`,
+            JSON.stringify(chatsData),
+          )
         } catch (err) {
           // Silently handle cache storage errors
         }
@@ -108,7 +111,7 @@ export default function ChatPage() {
         const projectsData = data.data || data || []
         setProjects(projectsData)
         setProjectsLoaded(true)
-        
+
         // Store in sessionStorage for next time
         try {
           sessionStorage.setItem('projects', JSON.stringify(projectsData))
@@ -159,10 +162,13 @@ export default function ChatPage() {
         const data = await response.json()
         const chatsData = data.chats || []
         setProjectChats(chatsData)
-        
+
         // Store in sessionStorage for next time
         try {
-          sessionStorage.setItem(`project-chats-${projectId}`, JSON.stringify(chatsData))
+          sessionStorage.setItem(
+            `project-chats-${projectId}`,
+            JSON.stringify(chatsData),
+          )
         } catch (err) {
           // Silently handle cache storage errors
         }
@@ -186,8 +192,6 @@ export default function ChatPage() {
     }
   }
 
-
-
   const handleDeleteChat = async () => {
     try {
       const response = await fetch(`/api/chats/${chatId}`, {
@@ -201,7 +205,7 @@ export default function ChatPage() {
         } catch (err) {
           // Silently handle cache clearing errors
         }
-        
+
         // Navigate to project page
         router.push(`/projects/${projectId}`)
       } else {
@@ -214,12 +218,9 @@ export default function ChatPage() {
 
   const loadChatData = async () => {
     try {
-      const response = await fetch(
-        `/api/chats/${encodeURIComponent(chatId)}`,
-        {
-          method: 'GET',
-        },
-      )
+      const response = await fetch(`/api/chats/${encodeURIComponent(chatId)}`, {
+        method: 'GET',
+      })
 
       if (response.ok) {
         const data = await response.json()
@@ -256,13 +257,13 @@ export default function ChatPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        
+
         // Check for API key error
         if (response.status === 401 && errorData.error === 'API_KEY_MISSING') {
           // API key error is now handled by useApiValidation hook
           return
         }
-        
+
         throw new Error(errorData.error || 'Failed to generate app')
       }
 
@@ -270,7 +271,10 @@ export default function ChatPage() {
       setChatData(data)
 
       // If this was a new chat, redirect to the actual chat ID within the project
-      if ((selectedChatId === 'new' || selectedProjectId === 'new') && (data.id || data.chatId)) {
+      if (
+        (selectedChatId === 'new' || selectedProjectId === 'new') &&
+        (data.id || data.chatId)
+      ) {
         const newChatId = data.id || data.chatId
         const newProjectId = data.projectId || selectedProjectId
         router.replace(`/projects/${newProjectId}/chats/${newChatId}`)
@@ -374,4 +378,4 @@ export default function ChatPage() {
       />
     </div>
   )
-} 
+}

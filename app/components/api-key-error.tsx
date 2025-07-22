@@ -29,16 +29,35 @@ export default function ApiKeyError() {
 
         {/* Description */}
         <p className="text-gray-600 mb-6 leading-relaxed">
-          To use this app, you need to configure your v0 API key. You can get one from v0.dev and set it as an environment variable.
+          To use this app, you need to configure your v0 API key. You can get
+          one from v0.dev and set it as an environment variable.
         </p>
 
         {/* Instructions */}
         <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-          <h3 className="font-semibold text-gray-900 mb-2">Setup Instructions:</h3>
+          <h3 className="font-semibold text-gray-900 mb-2">
+            Setup Instructions:
+          </h3>
           <ol className="text-sm text-gray-700 space-y-1">
-            <li>1. Get your API key from <span className="font-mono bg-gray-200 px-1 rounded">v0.dev/settings</span></li>
-            <li>2. Create a <span className="font-mono bg-gray-200 px-1 rounded">.env.local</span> file</li>
-            <li>3. Add: <span className="font-mono bg-gray-200 px-1 rounded">V0_API_KEY=your_key_here</span></li>
+            <li>
+              1. Get your API key from{' '}
+              <span className="font-mono bg-gray-200 px-1 rounded">
+                v0.dev/settings
+              </span>
+            </li>
+            <li>
+              2. Create a{' '}
+              <span className="font-mono bg-gray-200 px-1 rounded">
+                .env.local
+              </span>{' '}
+              file
+            </li>
+            <li>
+              3. Add:{' '}
+              <span className="font-mono bg-gray-200 px-1 rounded">
+                V0_API_KEY=your_key_here
+              </span>
+            </li>
             <li>4. Restart the development server</li>
           </ol>
         </div>
@@ -81,4 +100,4 @@ export default function ApiKeyError() {
       </div>
     </div>
   )
-} 
+}

@@ -9,7 +9,7 @@ export default function ProjectPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.projectId as string
-  
+
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
 
@@ -23,7 +23,7 @@ export default function ProjectPage() {
     try {
       // Load project with chats using the API endpoint
       const response = await fetch(`/api/projects/${projectId}`)
-      
+
       if (!response.ok) {
         // If project not found or other error, redirect to new chat
         router.replace(`/projects/${projectId}/chats/new`)
@@ -31,19 +31,21 @@ export default function ProjectPage() {
       }
 
       const projectData = await response.json()
-      
+
       // Get the latest chat from the project
       const chats = projectData.chats || []
       if (chats.length > 0) {
         // Sort by updatedAt if available, otherwise use the first chat
         const sortedChats = chats.sort((a: any, b: any) => {
           if (a.updatedAt && b.updatedAt) {
-            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            return (
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+            )
           }
           return 0
         })
         const latestChatId = sortedChats[0].id
-        
+
         // Redirect to the latest chat
         router.replace(`/projects/${projectId}/chats/${latestChatId}`)
       } else {
@@ -66,8 +68,7 @@ export default function ProjectPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-900 border-t-transparent mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading project...</p>
       </div>
     </div>
   )
-} 
+}

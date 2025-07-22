@@ -45,19 +45,24 @@ interface ChatDropdownProps {
   onChatChange?: (chatId: string) => void
 }
 
-export function ProjectDropdown({ currentProjectId, currentChatId, projects, onProjectChange }: ProjectDropdownProps) {
+export function ProjectDropdown({
+  currentProjectId,
+  currentChatId,
+  projects,
+  onProjectChange,
+}: ProjectDropdownProps) {
   const router = useRouter()
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const project = projects.find(p => p.id === currentProjectId)
+    const project = projects.find((p) => p.id === currentProjectId)
     setCurrentProject(project || null)
   }, [projects, currentProjectId])
 
   const handleProjectSelect = (projectId: string) => {
     setOpen(false)
-    
+
     // Always navigate to the selected project page for consistent behavior across all pages
     if (projectId === 'new') {
       // For new project, redirect to homepage
@@ -71,9 +76,17 @@ export function ProjectDropdown({ currentProjectId, currentChatId, projects, onP
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1 justify-start" role="combobox" aria-expanded={open}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1 justify-start"
+          role="combobox"
+          aria-expanded={open}
+        >
           <span className="text-sm text-gray-600">
-            {currentProjectId === 'new' ? 'New Project' : (currentProject?.name || 'Project')}
+            {currentProjectId === 'new'
+              ? 'New Project'
+              : currentProject?.name || 'Project'}
           </span>
           <ChevronDownIcon className="h-4 w-4 text-gray-400" />
         </Button>
@@ -98,8 +111,8 @@ export function ProjectDropdown({ currentProjectId, currentChatId, projects, onP
                   value={project.name || 'Untitled Project'}
                   onSelect={() => handleProjectSelect(project.id)}
                   className={cn(
-                    "justify-between",
-                    project.id === currentProjectId && "bg-accent"
+                    'justify-between',
+                    project.id === currentProjectId && 'bg-accent',
                   )}
                 >
                   <span>{project.name || 'Untitled Project'}</span>
@@ -116,15 +129,20 @@ export function ProjectDropdown({ currentProjectId, currentChatId, projects, onP
   )
 }
 
-export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: ChatDropdownProps) {
+export function ChatDropdown({
+  projectId,
+  currentChatId,
+  chats,
+  onChatChange,
+}: ChatDropdownProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
-  const currentChat = chats.find(c => c.id === currentChatId)
+  const currentChat = chats.find((c) => c.id === currentChatId)
 
   const handleChatSelect = async (chatId: string) => {
     setOpen(false)
-    
+
     if (chatId === 'new-from-scratch') {
       // Create new chat from scratch - notify parent to handle creation
       if (onChatChange) {
@@ -139,7 +157,7 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
       // Navigate to existing chat
       router.push(`/projects/${projectId}/chats/${chatId}`)
     }
-    
+
     // Notify parent of selection change for existing chats
     if (onChatChange) {
       onChatChange(chatId)
@@ -149,10 +167,12 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
   const handleForkLatestChat = async () => {
     try {
       // Find the latest chat (most recent updatedAt)
-      const sortedChats = [...chats].sort((a: any, b: any) => 
-        new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
+      const sortedChats = [...chats].sort(
+        (a: any, b: any) =>
+          new Date(b.updatedAt || 0).getTime() -
+          new Date(a.updatedAt || 0).getTime(),
       )
-      
+
       if (sortedChats.length === 0) {
         return
       }
@@ -167,7 +187,7 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
         },
         body: JSON.stringify({
           chatId: latestChat.id,
-          projectId: projectId
+          projectId: projectId,
         }),
       })
 
@@ -188,7 +208,13 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1 justify-start" role="combobox" aria-expanded={open}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1 justify-start"
+          role="combobox"
+          aria-expanded={open}
+        >
           <span className="text-sm text-gray-600">
             {currentChat ? getChatTitle(currentChat) : 'New Chat'}
           </span>
@@ -205,14 +231,12 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
                 value="new-from-scratch"
                 onSelect={() => handleChatSelect('new-from-scratch')}
                 className={cn(
-                  "justify-between",
-                  currentChatId === 'new' && "bg-accent"
+                  'justify-between',
+                  currentChatId === 'new' && 'bg-accent',
                 )}
               >
                 <span>+ New from Scratch</span>
-                {currentChatId === 'new' && (
-                  <CheckIcon className="h-4 w-4" />
-                )}
+                {currentChatId === 'new' && <CheckIcon className="h-4 w-4" />}
               </CommandItem>
               {chats.length > 0 && (
                 <CommandItem
@@ -230,8 +254,8 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
                   value={getChatTitle(chat)}
                   onSelect={() => handleChatSelect(chat.id)}
                   className={cn(
-                    "justify-between",
-                    chat.id === currentChatId && "bg-accent"
+                    'justify-between',
+                    chat.id === currentChatId && 'bg-accent',
                   )}
                 >
                   <span>{getChatTitle(chat)}</span>
@@ -246,4 +270,4 @@ export function ChatDropdown({ projectId, currentChatId, chats, onChatChange }: 
       </PopoverContent>
     </Popover>
   )
-} 
+}
