@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { v0 } from 'v0-sdk'
+import { createClient } from 'v0-sdk'
 
 export async function GET(
   request: NextRequest,
@@ -14,6 +14,10 @@ export async function GET(
         { status: 400 },
       )
     }
+
+    const v0 = createClient({
+      apiKey: process.env.V0_API_KEY,
+    })
 
     // Get chat details by ID
     const response = await v0.chats.getById({ chatId: chatId })
