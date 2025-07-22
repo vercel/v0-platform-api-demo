@@ -4,22 +4,27 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import PromptComponent from './components/prompt-component'
 import ApiKeyError from './components/api-key-error'
+import { useApiValidation } from '../lib/hooks/useApiValidation'
 
 export default function HomePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showApiKeyError, setShowApiKeyError] = useState(false)
   const [projects, setProjects] = useState<any[]>([])
   const [projectsLoaded, setProjectsLoaded] = useState(false)
   const [selectedProjectId, setSelectedProjectId] = useState('new')
   const [selectedChatId, setSelectedChatId] = useState('new')
   const [projectChats, setProjectChats] = useState<any[]>([])
 
-  // Load projects on page mount
+  // API validation on page load
+  const { isValidating, showApiKeyError } = useApiValidation()
+
+  // Load projects on page mount (only if API is valid)
   useEffect(() => {
-    loadProjectsWithCache()
-  }, [])
+    if (!isValidating && !showApiKeyError) {
+      loadProjectsWithCache()
+    }
+  }, [isValidating, showApiKeyError])
 
   const loadProjectsWithCache = async () => {
     // First, try to load from sessionStorage for immediate display
@@ -56,7 +61,8 @@ export default function HomePage() {
       } else if (response.status === 401) {
         const errorData = await response.json()
         if (errorData.error === 'API_KEY_MISSING') {
-          setShowApiKeyError(true)
+          // API key error is now handled by useApiValidation hook
+          return
         }
       }
     } catch (err) {
@@ -135,7 +141,7 @@ export default function HomePage() {
         
         // Check for API key error
         if (response.status === 401 && errorData.error === 'API_KEY_MISSING') {
-          setShowApiKeyError(true)
+          // API key error is now handled by useApiValidation hook
           return
         }
         

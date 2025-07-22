@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ProjectDropdown, ChatDropdown } from './components'
 import PromptComponent from '../../../../components/prompt-component'
 import ApiKeyError from '../../../../components/api-key-error'
+import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
 
 export default function ChatPage() {
   const params = useParams()
@@ -15,12 +16,14 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [generatedApp, setGeneratedApp] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [showApiKeyError, setShowApiKeyError] = useState(false)
   const [chatData, setChatData] = useState<any>(null)
   const [projectChats, setProjectChats] = useState<any[]>([])
   const [projectChatsLoaded, setProjectChatsLoaded] = useState(false)
   const [projects, setProjects] = useState<any[]>([])
   const [projectsLoaded, setProjectsLoaded] = useState(false)
+
+  // API validation on page load
+  const { isValidating, showApiKeyError } = useApiValidation()
   
   // Track if user has selected "new" options in dropdowns
   const [selectedProjectId, setSelectedProjectId] = useState(projectId)
@@ -28,14 +31,16 @@ export default function ChatPage() {
     chatId === 'new-chat' ? 'new' : chatId
   )
 
-  // Load existing chat data when component mounts
+  // Load existing chat data when component mounts (only if API is valid)
   useEffect(() => {
-    if (chatId && chatId !== 'new' && chatId !== 'new-chat') {
-      loadChatData()
+    if (!isValidating && !showApiKeyError) {
+      if (chatId && chatId !== 'new' && chatId !== 'new-chat') {
+        loadChatData()
+      }
+      loadProjectChatsWithCache()
+      loadProjectsWithCache()
     }
-    loadProjectChatsWithCache()
-    loadProjectsWithCache()
-  }, [chatId, projectId])
+  }, [chatId, projectId, isValidating, showApiKeyError])
 
   const loadProjectChatsWithCache = async () => {
     // First, try to load from sessionStorage for immediate display
@@ -113,7 +118,8 @@ export default function ChatPage() {
       } else if (response.status === 401) {
         const errorData = await response.json()
         if (errorData.error === 'API_KEY_MISSING') {
-          setShowApiKeyError(true)
+          // API key error is now handled by useApiValidation hook
+          return
         }
       }
     } catch (err) {
@@ -253,7 +259,7 @@ export default function ChatPage() {
         
         // Check for API key error
         if (response.status === 401 && errorData.error === 'API_KEY_MISSING') {
-          setShowApiKeyError(true)
+          // API key error is now handled by useApiValidation hook
           return
         }
         

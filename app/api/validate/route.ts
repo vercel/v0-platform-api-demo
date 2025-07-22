@@ -3,13 +3,18 @@ import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    // Make a simple API call to test if the key is valid
-    // Using projects.find() as it's a lightweight operation
-    await v0.projects.find()
+    // Use v0.user.get() to verify they are authenticated correctly
+    // This is more accurate than projects.find() for authentication verification
+    const user = await v0.user.get()
     
     return NextResponse.json({ 
       valid: true, 
-      message: 'API key is configured correctly' 
+      message: 'API key is configured correctly',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
     })
   } catch (error) {
     if (error instanceof Error) {
@@ -20,7 +25,9 @@ export async function GET() {
           errorMessage.includes('v0_api_key') || 
           errorMessage.includes('config.apikey') ||
           errorMessage.includes('unauthorized') ||
-          errorMessage.includes('invalid api key')) {
+          errorMessage.includes('invalid api key') ||
+          errorMessage.includes('authentication') ||
+          errorMessage.includes('401')) {
         return NextResponse.json(
           { 
             valid: false, 
