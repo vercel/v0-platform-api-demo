@@ -1,6 +1,6 @@
 # v0 Platform API Demo
 
-A Next.js application demonstrating the v0 Platform API. Features project management, chat history, and real-time app generation with live previews.
+A Next.js application demonstrating the v0 Platform API. Features project management, chat history, and app generation with live previews.
 
 ![Screenshot](screenshot.png)
 
