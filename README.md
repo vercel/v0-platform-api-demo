@@ -2,6 +2,8 @@
 
 A Next.js application demonstrating the v0 Platform API. Features project management, chat history, and real-time app generation with live previews.
 
+![Screenshot](screenshot.png)
+
 ## Setup
 
 1. **Install dependencies:**
