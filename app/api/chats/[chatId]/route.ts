@@ -61,6 +61,10 @@ export async function DELETE(
       )
     }
 
+    const v0 = createClient({
+      apiKey: process.env.V0_API_KEY,
+    })
+
     // Delete chat using v0 SDK
     await v0.chats.delete({ chatId })
 
