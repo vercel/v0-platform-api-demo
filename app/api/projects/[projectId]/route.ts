@@ -3,10 +3,10 @@ import { v0 } from 'v0-sdk'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } },
+  { params }: { params: Promise<{ projectId: string }> },
 ) {
   try {
-    const { projectId } = params
+    const { projectId } = await params
 
     if (!projectId) {
       return NextResponse.json(

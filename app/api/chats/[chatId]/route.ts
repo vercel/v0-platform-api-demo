@@ -3,10 +3,10 @@ import { v0 } from 'v0-sdk'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { chatId: string } },
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   try {
-    const { chatId } = params
+    const { chatId } = await params
 
     if (!chatId) {
       return NextResponse.json(
@@ -45,10 +45,10 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { chatId: string } },
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   try {
-    const { chatId } = params
+    const { chatId } = await params
 
     if (!chatId) {
       return NextResponse.json(
