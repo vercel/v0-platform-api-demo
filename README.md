@@ -13,10 +13,10 @@ A Next.js application demonstrating the v0 Platform API. Features project manage
 
 2. **Configure environment:**
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
    
-   Add your v0 API key to `.env.local`:
+   Add your v0 API key to `.env`:
    ```env
    V0_API_KEY=your_api_key_here
    ```
