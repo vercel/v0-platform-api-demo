@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronDownIcon, CheckIcon } from 'lucide-react'
 import {
@@ -54,11 +54,24 @@ export function ProjectDropdown({
   const router = useRouter()
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [open, setOpen] = useState(false)
+  const prevProjectsLengthRef = useRef(projects.length)
 
   useEffect(() => {
     const project = projects.find((p) => p.id === currentProjectId)
     setCurrentProject(project || null)
-  }, [projects, currentProjectId])
+    
+    // If projects array length changed and dropdown was open, keep it open
+    if (prevProjectsLengthRef.current !== projects.length && open) {
+      // Force re-render to maintain open state
+      setOpen(true)
+    }
+    prevProjectsLengthRef.current = projects.length
+  }, [projects, currentProjectId, open])
+
+  // Prevent dropdown from closing when projects array changes
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+  }
 
   const handleProjectSelect = (projectId: string) => {
     setOpen(false)
@@ -74,7 +87,7 @@ export function ProjectDropdown({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -137,8 +150,23 @@ export function ChatDropdown({
 }: ChatDropdownProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const prevChatsLengthRef = useRef(chats.length)
 
   const currentChat = chats.find((c) => c.id === currentChatId)
+
+  useEffect(() => {
+    // If chats array length changed and dropdown was open, keep it open
+    if (prevChatsLengthRef.current !== chats.length && open) {
+      // Force re-render to maintain open state
+      setOpen(true)
+    }
+    prevChatsLengthRef.current = chats.length
+  }, [chats, open])
+
+  // Prevent dropdown from closing when chats array changes
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen)
+  }
 
   const handleChatSelect = async (chatId: string) => {
     setOpen(false)
@@ -206,7 +234,7 @@ export function ChatDropdown({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
