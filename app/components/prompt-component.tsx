@@ -277,16 +277,14 @@ export default function PromptComponent({
 
                     <div className="flex items-center space-x-3">
                       {/* v0.dev Link */}
-                      {chatData?.url && (
-                        <a
-                          href={chatData.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
-                        >
-                          View on v0.dev
-                        </a>
-                      )}
+                      <a
+                        href={chatData?.url || 'https://v0.dev'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        View on v0.dev
+                      </a>
 
                       {/* More Options Menu */}
                       {showDropdowns && currentProjectId && (
@@ -295,7 +293,7 @@ export default function PromptComponent({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0"
+                              className="h-8 w-8 p-0 mr-2.5"
                             >
                               <MoreVerticalIcon className="h-4 w-4" />
                             </Button>

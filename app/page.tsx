@@ -181,7 +181,7 @@ export default function HomePage() {
     <div className="relative min-h-screen bg-gray-50">
       {/* Homepage Welcome Message */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center" style={{ transform: 'translateY(-25%)' }}>
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
             What can I help you build?
           </h1>
