@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'v0-sdk'
+import { getUserIP, checkChatOwnership } from '@/lib/rate-limiter'
 
 export async function GET(
   request: NextRequest,
@@ -12,6 +13,17 @@ export async function GET(
       return NextResponse.json(
         { error: 'Chat ID is required' },
         { status: 400 },
+      )
+    }
+
+    // Get user's IP and check ownership
+    const userIP = getUserIP(request)
+    const hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Chat not found or access denied' },
+        { status: 404 },
       )
     }
 
@@ -58,6 +70,17 @@ export async function DELETE(
       return NextResponse.json(
         { error: 'Chat ID is required' },
         { status: 400 },
+      )
+    }
+
+    // Get user's IP and check ownership
+    const userIP = getUserIP(request)
+    const hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Chat not found or access denied' },
+        { status: 404 },
       )
     }
 
@@ -111,6 +134,17 @@ export async function PATCH(
       return NextResponse.json(
         { error: 'Name is required and must be a non-empty string' },
         { status: 400 },
+      )
+    }
+
+    // Get user's IP and check ownership
+    const userIP = getUserIP(request)
+    const hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: 'Chat not found or access denied' },
+        { status: 404 },
       )
     }
 

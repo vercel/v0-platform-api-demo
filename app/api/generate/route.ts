@@ -1,6 +1,6 @@
 import { v0 } from 'v0-sdk'
 import { NextRequest, NextResponse } from 'next/server'
-import { checkRateLimit, getUserIdentifier } from '@/lib/rate-limiter'
+import { checkRateLimit, getUserIdentifier, getUserIP, associateChatWithIP, checkChatOwnership } from '@/lib/rate-limiter'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Check rate limit for ALL generations (both new and existing chats)
     const userIdentifier = getUserIdentifier(request)
+    const userIP = getUserIP(request)
     const rateLimitResult = await checkRateLimit(userIdentifier)
     
     if (!rateLimitResult.success) {
@@ -49,6 +50,16 @@ export async function POST(request: NextRequest) {
     let response
 
     if (chatId) {
+      // Check if user owns this chat before continuing it
+      const hasAccess = await checkChatOwnership(chatId, userIP)
+      
+      if (!hasAccess) {
+        return NextResponse.json(
+          { error: 'Chat not found or access denied' },
+          { status: 404 },
+        )
+      }
+
       // Continue existing chat using sendMessage
       response = await v0.chats.sendMessage({
         chatId: chatId,
@@ -74,8 +85,11 @@ export async function POST(request: NextRequest) {
         ...(attachments.length > 0 && { attachments }),
       })
 
-      // Rename the new chat to "Main" for new projects
+      // Associate the new chat with the user's IP
       if (response.id) {
+        await associateChatWithIP(response.id, userIP)
+        
+        // Rename the new chat to "Main" for new projects
         try {
           await v0.chats.update({
             chatId: response.id,

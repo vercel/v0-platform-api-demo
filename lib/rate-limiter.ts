@@ -8,9 +8,10 @@ const isRateLimitingEnabled = upstashUrl && upstashToken && upstashUrl.trim() !=
 
 // Create Redis instance and rate limiter only if credentials are available
 let generationRateLimit: Ratelimit | null = null
+let redis: Redis | null = null
 
 if (isRateLimitingEnabled) {
-  const redis = new Redis({
+  redis = new Redis({
     url: upstashUrl!,
     token: upstashToken!,
   })
@@ -37,6 +38,93 @@ export function getUserIdentifier(request: Request): string {
   // You can extend this to use user authentication if available
   // For now, we'll use IP-based rate limiting
   return `ip:${ip}`
+}
+
+// Function to get just the IP address from request
+export function getUserIP(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+  
+  return forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown'
+}
+
+// Function to associate an IP with a project
+export async function associateProjectWithIP(projectId: string, userIP: string): Promise<void> {
+  if (!redis) return // Skip if Redis is not available
+  
+  try {
+    // Store both directions of the mapping
+    await redis.sadd(`user_projects:${userIP}`, projectId)
+    await redis.set(`project_owner:${projectId}`, userIP)
+  } catch (error) {
+    console.warn('Failed to associate project with IP:', error)
+  }
+}
+
+// Function to associate an IP with a chat
+export async function associateChatWithIP(chatId: string, userIP: string): Promise<void> {
+  if (!redis) return // Skip if Redis is not available
+  
+  try {
+    // Store both directions of the mapping
+    await redis.sadd(`user_chats:${userIP}`, chatId)
+    await redis.set(`chat_owner:${chatId}`, userIP)
+  } catch (error) {
+    console.warn('Failed to associate chat with IP:', error)
+  }
+}
+
+// Function to check if a user owns a project
+export async function checkProjectOwnership(projectId: string, userIP: string): Promise<boolean> {
+  if (!redis) return true // Allow access if Redis is not available
+  
+  try {
+    const owner = await redis.get(`project_owner:${projectId}`)
+    return owner === userIP
+  } catch (error) {
+    console.warn('Failed to check project ownership:', error)
+    return true // Allow access on error
+  }
+}
+
+// Function to check if a user owns a chat
+export async function checkChatOwnership(chatId: string, userIP: string): Promise<boolean> {
+  if (!redis) return true // Allow access if Redis is not available
+  
+  try {
+    const owner = await redis.get(`chat_owner:${chatId}`)
+    return owner === userIP
+  } catch (error) {
+    console.warn('Failed to check chat ownership:', error)
+    return true // Allow access on error
+  }
+}
+
+// Function to get user's projects
+export async function getUserProjects(userIP: string): Promise<string[]> {
+  if (!redis) return [] // Return empty if Redis is not available
+  
+  try {
+    const projectIds = await redis.smembers(`user_projects:${userIP}`)
+    return projectIds as string[]
+  } catch (error) {
+    console.warn('Failed to get user projects:', error)
+    return []
+  }
+}
+
+// Function to get user's chats
+export async function getUserChats(userIP: string): Promise<string[]> {
+  if (!redis) return [] // Return empty if Redis is not available
+  
+  try {
+    const chatIds = await redis.smembers(`user_chats:${userIP}`)
+    return chatIds as string[]
+  } catch (error) {
+    console.warn('Failed to get user chats:', error)
+    return []
+  }
 }
 
 // Check if rate limit is exceeded
