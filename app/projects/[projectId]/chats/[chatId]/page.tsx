@@ -6,6 +6,8 @@ import { ProjectDropdown, ChatDropdown } from './components'
 import PromptComponent from '../../../../components/prompt-component'
 import ApiKeyError from '../../../../components/api-key-error'
 import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
+import { LoadingComponent } from '@/components/loading-component'
+import IFrameComponent from '@/components/iframe-component'
 
 export default function ChatPage() {
   const params = useParams()
@@ -14,6 +16,7 @@ export default function ChatPage() {
   const chatId = params.chatId as string
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [generatedApp, setGeneratedApp] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [chatData, setChatData] = useState<any>(null)
@@ -34,11 +37,20 @@ export default function ChatPage() {
   // Load existing chat data when component mounts (only if API is valid)
   useEffect(() => {
     if (!isValidating && !showApiKeyError) {
-      if (chatId && chatId !== 'new' && chatId !== 'new-chat') {
-        loadChatData()
+      const loadAllData = async () => {
+        const promises = []
+
+        if (chatId && chatId !== 'new' && chatId !== 'new-chat') {
+          promises.push(loadChatData())
+        }
+        promises.push(loadProjectChatsWithCache())
+        promises.push(loadProjectsWithCache())
+
+        await Promise.all(promises)
+        setIsInitialLoading(false)
       }
-      loadProjectChatsWithCache()
-      loadProjectsWithCache()
+
+      loadAllData()
     }
   }, [chatId, projectId, isValidating, showApiKeyError])
 
@@ -339,15 +351,14 @@ export default function ChatPage() {
               <div class="text-4xl mb-4">✨</div>
               <h1 class="text-xl font-semibold mb-4">App Generated Successfully!</h1>
               <p class="text-gray-600 mb-4">${data.text || 'Your app has been created.'}</p>
-              ${
-                data.url
-                  ? `
+              ${data.url
+            ? `
                 <a href="${data.url}" target="_blank" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
                   View on v0.dev
                 </a>
               `
-                  : ''
-              }
+            : ''
+          }
             </div>
           </body>
           </html>
@@ -376,25 +387,28 @@ export default function ChatPage() {
       {/* Preview Area */}
       <div className="absolute inset-0 overflow-hidden">
         {generatedApp ? (
-          <div className="w-full h-full bg-white">
-            {/* Preview container */}
-            {generatedApp.startsWith('http') ? (
-              <iframe
-                src={generatedApp}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups allow-top-navigation-by-user-activation allow-pointer-lock"
-              />
-            ) : (
-              <iframe
-                srcDoc={generatedApp}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-pointer-lock"
-              />
-            )}
-          </div>
+          <IFrameComponent
+            src={generatedApp}
+          />
         ) : null}
       </div>
 
+      {/* Loaders */}
+      <div className="absolute inset-0 z-10">
+        {isValidating ? (
+          <LoadingComponent
+            message="Validating API key"
+            color='#3b86f6ff'
+          />
+        ) : isInitialLoading ? (
+          <LoadingComponent
+            message="Generating your app"
+            color='#10b981'
+          />
+        ) : null}
+      </div>
+
+      {/* User Control & Input Area */}
       <PromptComponent
         onSubmit={handleSubmit}
         isLoading={isLoading}
