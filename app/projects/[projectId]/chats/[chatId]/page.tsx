@@ -270,7 +270,7 @@ export default function ChatPage() {
     }
   }
 
-  const handleSubmit = async (prompt: string, modelId?: string) => {
+  const handleSubmit = async (prompt: string, settings: { modelId: string; imageGenerations: boolean; thinking: boolean }) => {
     setIsLoading(true)
     setError(null)
 
@@ -284,7 +284,9 @@ export default function ChatPage() {
           message: prompt,
           chatId: selectedChatId !== 'new' ? selectedChatId : undefined,
           projectId: projectId, // Always use the current project from URL
-          modelId,
+          modelId: settings.modelId,
+          imageGenerations: settings.imageGenerations,
+          thinking: settings.thinking,
         }),
       })
 

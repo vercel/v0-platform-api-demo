@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import { DropdownMenuItem as DialogDropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { SettingsIcon, ChevronDownIcon, CheckIcon } from 'lucide-react'
 import { Settings, ModelType, useSettings } from '../../lib/hooks/useSettings'
@@ -122,6 +123,40 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+
+          {/* Image Generations */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <h3 className="text-sm font-medium text-gray-900">Image Generations</h3>
+              <p className="text-xs text-gray-500">Enable AI-generated images in your apps</p>
+            </div>
+            <Switch
+              checked={tempSettings.imageGenerations}
+              onCheckedChange={(checked) =>
+                setTempSettings({
+                  ...tempSettings,
+                  imageGenerations: checked,
+                })
+              }
+            />
+          </div>
+
+          {/* Thinking */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <h3 className="text-sm font-medium text-gray-900">Thinking</h3>
+              <p className="text-xs text-gray-500">Show AI reasoning process during generation</p>
+            </div>
+            <Switch
+              checked={tempSettings.thinking}
+              onCheckedChange={(checked) =>
+                setTempSettings({
+                  ...tempSettings,
+                  thinking: checked,
+                })
+              }
+            />
           </div>
         </div>
 

@@ -46,7 +46,7 @@ interface PromptComponentProps {
   chatData?: any
 
   // Submit handler - different behavior for homepage vs chat pages
-  onSubmit: (prompt: string, modelId?: string) => Promise<void>
+  onSubmit: (prompt: string, settings: { modelId: string; imageGenerations: boolean; thinking: boolean }) => Promise<void>
 
   // Loading state from parent
   isLoading: boolean
@@ -141,7 +141,11 @@ export default function PromptComponent({
     setShouldAnimate(false) // Reset animation state
 
     try {
-      await onSubmit(prompt.trim(), settings.model)
+      await onSubmit(prompt.trim(), {
+        modelId: settings.model,
+        imageGenerations: settings.imageGenerations,
+        thinking: settings.thinking,
+      })
       // Clear the prompt after successful submission
       setPrompt('')
     } catch (err) {

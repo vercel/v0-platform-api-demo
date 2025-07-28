@@ -124,7 +124,7 @@ export default function HomePage() {
     setSelectedChatId(newChatId)
   }
 
-  const handleSubmit = async (prompt: string, modelId?: string) => {
+  const handleSubmit = async (prompt: string, settings: { modelId: string; imageGenerations: boolean; thinking: boolean }) => {
     setIsLoading(true)
     setError(null)
 
@@ -136,7 +136,9 @@ export default function HomePage() {
         },
         body: JSON.stringify({
           message: prompt,
-          modelId,
+          modelId: settings.modelId,
+          imageGenerations: settings.imageGenerations,
+          thinking: settings.thinking,
         }),
       })
 

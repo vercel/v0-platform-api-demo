@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
       chatId,
       projectId,
       modelId = 'v0-1.5-md',
+      imageGenerations = false,
+      thinking = false,
     } = await request.json()
 
     if (!message || typeof message !== 'string') {
@@ -26,7 +28,8 @@ export async function POST(request: NextRequest) {
         message: message.trim(),
         modelConfiguration: {
           modelId: modelId,
-          imageGenerations: true,
+          imageGenerations: imageGenerations,
+          thinking: thinking,
         },
       })
     } else {
@@ -35,7 +38,8 @@ export async function POST(request: NextRequest) {
         message: message.trim(),
         modelConfiguration: {
           modelId: modelId,
-          imageGenerations: true,
+          imageGenerations: imageGenerations,
+          thinking: thinking,
         },
         ...(projectId && { projectId }),
       })
