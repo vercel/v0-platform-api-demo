@@ -127,6 +127,40 @@ export async function getUserChats(userIP: string): Promise<string[]> {
   }
 }
 
+// Migration function: associate unowned projects with the accessing user
+export async function migrateProjectOwnership(projectId: string, userIP: string): Promise<void> {
+  if (!redis) return // Skip if Redis is not available
+  
+  try {
+    // Check if project already has an owner
+    const existingOwner = await redis.get(`project_owner:${projectId}`)
+    
+    // If no owner exists, associate it with this user
+    if (!existingOwner) {
+      await associateProjectWithIP(projectId, userIP)
+    }
+  } catch (error) {
+    console.warn('Failed to migrate project ownership:', error)
+  }
+}
+
+// Migration function: associate unowned chats with the accessing user
+export async function migrateChatOwnership(chatId: string, userIP: string): Promise<void> {
+  if (!redis) return // Skip if Redis is not available
+  
+  try {
+    // Check if chat already has an owner
+    const existingOwner = await redis.get(`chat_owner:${chatId}`)
+    
+    // If no owner exists, associate it with this user
+    if (!existingOwner) {
+      await associateChatWithIP(chatId, userIP)
+    }
+  } catch (error) {
+    console.warn('Failed to migrate chat ownership:', error)
+  }
+}
+
 // Check if rate limit is exceeded
 export async function checkRateLimit(identifier: string) {
   // If rate limiting is not enabled, always allow the request

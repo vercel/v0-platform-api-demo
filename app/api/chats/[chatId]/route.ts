@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'v0-sdk'
-import { getUserIP, checkChatOwnership } from '@/lib/rate-limiter'
+import { getUserIP, checkChatOwnership, migrateChatOwnership } from '@/lib/rate-limiter'
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +18,13 @@ export async function GET(
 
     // Get user's IP and check ownership
     const userIP = getUserIP(request)
-    const hasAccess = await checkChatOwnership(chatId, userIP)
+    let hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    // If no access, try migration (for existing chats created before IP isolation)
+    if (!hasAccess) {
+      await migrateChatOwnership(chatId, userIP)
+      hasAccess = await checkChatOwnership(chatId, userIP)
+    }
     
     if (!hasAccess) {
       return NextResponse.json(
@@ -75,7 +81,13 @@ export async function DELETE(
 
     // Get user's IP and check ownership
     const userIP = getUserIP(request)
-    const hasAccess = await checkChatOwnership(chatId, userIP)
+    let hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    // If no access, try migration (for existing chats created before IP isolation)
+    if (!hasAccess) {
+      await migrateChatOwnership(chatId, userIP)
+      hasAccess = await checkChatOwnership(chatId, userIP)
+    }
     
     if (!hasAccess) {
       return NextResponse.json(
@@ -139,7 +151,13 @@ export async function PATCH(
 
     // Get user's IP and check ownership
     const userIP = getUserIP(request)
-    const hasAccess = await checkChatOwnership(chatId, userIP)
+    let hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    // If no access, try migration (for existing chats created before IP isolation)
+    if (!hasAccess) {
+      await migrateChatOwnership(chatId, userIP)
+      hasAccess = await checkChatOwnership(chatId, userIP)
+    }
     
     if (!hasAccess) {
       return NextResponse.json(

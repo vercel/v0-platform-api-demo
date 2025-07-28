@@ -1,6 +1,6 @@
 import { v0 } from 'v0-sdk'
 import { NextRequest, NextResponse } from 'next/server'
-import { checkRateLimit, getUserIdentifier, getUserIP, associateChatWithIP, checkChatOwnership } from '@/lib/rate-limiter'
+import { checkRateLimit, getUserIdentifier, getUserIP, associateChatWithIP, checkChatOwnership, associateProjectWithIP, migrateChatOwnership } from '@/lib/rate-limiter'
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,7 +51,13 @@ export async function POST(request: NextRequest) {
 
     if (chatId) {
       // Check if user owns this chat before continuing it
-      const hasAccess = await checkChatOwnership(chatId, userIP)
+      let hasAccess = await checkChatOwnership(chatId, userIP)
+      
+      // If no access, try migration (for existing chats created before IP isolation)
+      if (!hasAccess) {
+        await migrateChatOwnership(chatId, userIP)
+        hasAccess = await checkChatOwnership(chatId, userIP)
+      }
       
       if (!hasAccess) {
         return NextResponse.json(
@@ -88,6 +94,11 @@ export async function POST(request: NextRequest) {
       // Associate the new chat with the user's IP
       if (response.id) {
         await associateChatWithIP(response.id, userIP)
+        
+        // If a project was created/returned, associate it with the user's IP too
+        if (response.projectId) {
+          await associateProjectWithIP(response.projectId, userIP)
+        }
         
         // Rename the new chat to "Main" for new projects
         try {

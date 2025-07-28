@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { v0 } from 'v0-sdk'
-import { getUserIP, checkChatOwnership, associateChatWithIP } from '@/lib/rate-limiter'
+import { getUserIP, checkChatOwnership, associateChatWithIP, associateProjectWithIP, migrateChatOwnership } from '@/lib/rate-limiter'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,7 +15,13 @@ export async function POST(request: NextRequest) {
 
     // Get user's IP and check if they own the original chat
     const userIP = getUserIP(request)
-    const hasAccess = await checkChatOwnership(chatId, userIP)
+    let hasAccess = await checkChatOwnership(chatId, userIP)
+    
+    // If no access, try migration (for existing chats created before IP isolation)
+    if (!hasAccess) {
+      await migrateChatOwnership(chatId, userIP)
+      hasAccess = await checkChatOwnership(chatId, userIP)
+    }
     
     if (!hasAccess) {
       return NextResponse.json(
@@ -33,6 +39,11 @@ export async function POST(request: NextRequest) {
     // Associate the forked chat with the user's IP
     if (forkedChat.id) {
       await associateChatWithIP(forkedChat.id, userIP)
+      
+      // If a project was created/returned, associate it with the user's IP too
+      if (forkedChat.projectId) {
+        await associateProjectWithIP(forkedChat.projectId, userIP)
+      }
     }
 
     return NextResponse.json(forkedChat)

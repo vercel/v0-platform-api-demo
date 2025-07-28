@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { v0 } from 'v0-sdk'
-import { getUserIP, checkProjectOwnership } from '@/lib/rate-limiter'
+import { getUserIP, checkProjectOwnership, migrateProjectOwnership } from '@/lib/rate-limiter'
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +18,13 @@ export async function GET(
 
     // Get user's IP and check ownership
     const userIP = getUserIP(request)
-    const hasAccess = await checkProjectOwnership(projectId, userIP)
+    let hasAccess = await checkProjectOwnership(projectId, userIP)
+    
+    // If no access, try migration (for existing projects created before IP isolation)
+    if (!hasAccess) {
+      await migrateProjectOwnership(projectId, userIP)
+      hasAccess = await checkProjectOwnership(projectId, userIP)
+    }
     
     if (!hasAccess) {
       return NextResponse.json(
