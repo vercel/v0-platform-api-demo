@@ -251,7 +251,6 @@ export default function PromptComponent({
         recognitionRef.current.continuous = true
         recognitionRef.current.interimResults = true
         recognitionRef.current.lang = 'en-US'
-
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = ''
           for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -284,7 +283,6 @@ export default function PromptComponent({
 
   const toggleListening = () => {
     if (!recognitionRef.current) return
-
     if (isListening) {
       recognitionRef.current.stop()
       setIsListening(false)
@@ -411,14 +409,12 @@ export default function PromptComponent({
         reader.onload = (e) => resolve(e.target?.result as string)
         reader.readAsDataURL(file)
       })
-
       newAttachments.push({
         url: dataUrl,
         name: file.name,
         type: file.type,
       })
     }
-
     setAttachments([...attachments, ...newAttachments])
   }
 

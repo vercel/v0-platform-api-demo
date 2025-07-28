@@ -8,6 +8,8 @@ import ApiKeyError from '../../../../components/api-key-error'
 import RateLimitDialog from '../../../../components/rate-limit-dialog'
 import ErrorDialog from '../../../../components/error-dialog'
 import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
+import { LoadingComponent } from '@/components/loading-component'
+import { IFrameComponent } from '@/components/iframe-component'
 
 export default function ChatPage() {
   const params = useParams()
@@ -16,6 +18,7 @@ export default function ChatPage() {
   const chatId = params.chatId as string
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [generatedApp, setGeneratedApp] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [chatData, setChatData] = useState<any>(null)
@@ -43,11 +46,20 @@ export default function ChatPage() {
   // Load existing chat data when component mounts (only if API is valid)
   useEffect(() => {
     if (!isValidating && !showApiKeyError) {
-      if (chatId && chatId !== 'new' && chatId !== 'new-chat') {
-        loadChatData()
+      const loadAllData = async () => {
+        const promises = []
+
+        if (chatId && chatId !== 'new' && chatId !== 'new-chat') {
+          promises.push(loadChatData())
+        }
+        promises.push(loadProjectChatsWithCache())
+        promises.push(loadProjectsWithCache())
+
+        await Promise.all(promises)
+        setIsInitialLoading(false)
       }
-      loadProjectChatsWithCache()
-      loadProjectsWithCache()
+
+      loadAllData()
     }
   }, [chatId, projectId, isValidating, showApiKeyError])
 
@@ -397,25 +409,28 @@ export default function ChatPage() {
       {/* Preview Area */}
       <div className="absolute inset-0 overflow-hidden">
         {generatedApp ? (
-          <div className="w-full h-full bg-white">
-            {/* Preview container */}
-            {generatedApp.startsWith('http') ? (
-              <iframe
-                src={generatedApp}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups allow-top-navigation-by-user-activation allow-pointer-lock"
-              />
-            ) : (
-              <iframe
-                srcDoc={generatedApp}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-pointer-lock"
-              />
-            )}
-          </div>
+          <IFrameComponent
+            src={generatedApp}
+          />
         ) : null}
       </div>
 
+      {/* Loaders */}
+      <div className="absolute inset-0 z-10">
+        {isValidating ? (
+          <LoadingComponent
+            message="Validating API key"
+            color='#3b86f6ff'
+          />
+        ) : isInitialLoading ? (
+          <LoadingComponent
+            message="Generating your app"
+            color='#10b981'
+          />
+        ) : null}
+      </div>
+
+      {/* User Control & Input Area */}
       <PromptComponent
         onSubmit={handleSubmit}
         isLoading={isLoading}
