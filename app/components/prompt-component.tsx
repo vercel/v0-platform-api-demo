@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreVerticalIcon, TrashIcon, XIcon, PaperclipIcon } from 'lucide-react'
+import { MoreVerticalIcon, TrashIcon, XIcon, PaperclipIcon, MicIcon } from 'lucide-react'
 import SettingsDialog from './settings-dialog'
 import RenameChatDialog from './rename-chat-dialog'
 import { useSettings } from '../../lib/hooks/useSettings'
@@ -106,7 +106,64 @@ export default function PromptComponent({
   const [shouldAnimate, setShouldAnimate] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [isListening, setIsListening] = useState(false)
+  const [speechSupported, setSpeechSupported] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const recognitionRef = useRef<any>(null)
+
+  // Check for speech recognition support
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      setSpeechSupported(!!SpeechRecognition)
+      
+      if (SpeechRecognition) {
+        recognitionRef.current = new SpeechRecognition()
+        recognitionRef.current.continuous = true
+        recognitionRef.current.interimResults = true
+        recognitionRef.current.lang = 'en-US'
+        
+        recognitionRef.current.onresult = (event: any) => {
+          let finalTranscript = ''
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript
+            }
+          }
+          if (finalTranscript) {
+            setPrompt(prev => prev + finalTranscript)
+          }
+        }
+        
+        recognitionRef.current.onend = () => {
+          setIsListening(false)
+        }
+        
+        recognitionRef.current.onerror = () => {
+          setIsListening(false)
+        }
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      if (recognitionRef.current && isListening) {
+        recognitionRef.current.stop()
+      }
+    }
+  }, [])
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) return
+    
+    if (isListening) {
+      recognitionRef.current.stop()
+      setIsListening(false)
+    } else {
+      recognitionRef.current.start()
+      setIsListening(true)
+    }
+  }
 
   // Global keydown listener to expand prompt on typing and handle escape
   useEffect(() => {
@@ -148,6 +205,12 @@ export default function PromptComponent({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!prompt.trim()) return
+
+    // Stop listening if active
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop()
+      setIsListening(false)
+    }
 
     setIsPromptExpanded(false) // Hide prompt bar on submit
     setShouldAnimate(false) // Reset animation state
@@ -273,7 +336,9 @@ export default function PromptComponent({
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder={placeholder}
                       rows={1}
-                      className="w-full pl-2 sm:pl-2.5 pr-20 sm:pr-24 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden"
+                      className={`w-full pl-2 sm:pl-2.5 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden ${
+                        speechSupported ? 'pr-24 sm:pr-32' : 'pr-20 sm:pr-24'
+                      }`}
                       disabled={isLoading}
                       style={{
                         minHeight: '44px', // Smaller on mobile
@@ -293,12 +358,30 @@ export default function PromptComponent({
                       }}
                     />
 
+                    {/* Mic button - only show if speech recognition is supported */}
+                    {speechSupported && (
+                      <button
+                        type="button"
+                        onClick={toggleListening}
+                        disabled={isLoading}
+                        className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg transition-all duration-200 cursor-pointer disabled:cursor-not-allowed ${
+                          isListening 
+                            ? 'text-red-600 bg-red-50 hover:text-red-700 hover:bg-red-100' 
+                            : 'text-gray-600 hover:text-gray-900 disabled:text-gray-300'
+                        }`}
+                        style={{ right: '80px' }}
+                      >
+                        <MicIcon className="w-4 h-4" />
+                      </button>
+                    )}
+
                     {/* Attachment button */}
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading}
-                      className="absolute right-10 sm:right-12 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                      className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                      style={{ right: speechSupported ? '48px' : '48px' }}
                     >
                       <PaperclipIcon className="w-4 h-4" />
                     </button>
