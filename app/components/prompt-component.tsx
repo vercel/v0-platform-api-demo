@@ -307,7 +307,7 @@ export default function PromptComponent({
                     <button
                       type="submit"
                       disabled={isLoading || !prompt.trim()}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
                         <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-gray-600 border-t-transparent"></div>
