@@ -165,10 +165,10 @@ export default function PromptComponent({
           className={`fixed inset-x-0 bottom-0 z-30 pointer-events-none ${shouldAnimate ? 'animate-slide-up' : ''}`}
         >
           {/* Main prompt container */}
-          <div className="mx-auto max-w-4xl px-6 pb-8 pointer-events-auto">
+          <div className="mx-auto max-w-4xl px-3 sm:px-6 pb-4 sm:pb-8 pointer-events-auto">
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-white/50">
               {/* Input area */}
-              <div className="p-6">
+              <div className="p-3 sm:p-6">
                 <form onSubmit={handleSubmit}>
                   <div className="relative">
                     {/* Input field */}
@@ -198,10 +198,10 @@ export default function PromptComponent({
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder={placeholder}
                       rows={1}
-                      className="w-full pl-2.5 pr-16 py-4 text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden"
+                      className="w-full pl-2 sm:pl-2.5 pr-12 sm:pr-16 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden"
                       disabled={isLoading}
                       style={{
-                        minHeight: '56px', // Match the original height
+                        minHeight: '44px', // Smaller on mobile
                         height: 'auto',
                       }}
                       onInput={(e) => {
@@ -222,19 +222,19 @@ export default function PromptComponent({
                     <button
                       type="submit"
                       disabled={isLoading || !prompt.trim()}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-12 rounded-xl text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-10 sm:h-12 rounded-xl text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
                       style={{
                         width: 'fit-content',
-                        minWidth: '48px',
-                        paddingLeft: '12px',
-                        paddingRight: '12px',
+                        minWidth: '40px',
+                        paddingLeft: '8px',
+                        paddingRight: '8px',
                       }}
                     >
                       {isLoading ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-600 border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-gray-600 border-t-transparent"></div>
                       ) : (
                         <svg
-                          className="w-5 h-5"
+                          className="w-4 h-4 sm:w-5 sm:h-5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -251,100 +251,117 @@ export default function PromptComponent({
                   </div>
 
                   {/* Controls under input */}
-                  <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                      {/* Project and Chat Dropdowns */}
-                      {showDropdowns && currentProjectId ? (
-                        <>
-                          <ProjectDropdown
-                            currentProjectId={currentProjectId}
-                            currentChatId={currentChatId || 'new'}
-                            projects={projects}
-                            onProjectChange={onProjectChange}
-                          />
-                          <ChatDropdown
-                            projectId={currentProjectId}
-                            currentChatId={currentChatId || 'new'}
-                            chats={projectChats}
-                            onChatChange={onChatChange}
-                          />
-                        </>
-                      ) : currentProjectId ? (
-                        // Placeholder to prevent layout shift
-                        <div className="flex gap-3">
-                          <div className="h-8 w-24 bg-transparent"></div>
-                          <div className="h-8 w-20 bg-transparent"></div>
-                        </div>
-                      ) : null}
-                    </div>
+                  <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+                    <div className="flex items-center justify-between sm:flex-1">
+                      <div className="flex items-center gap-0 flex-1">
+                        {/* Project and Chat Dropdowns */}
+                        {showDropdowns && currentProjectId ? (
+                          <>
+                            <ProjectDropdown
+                              currentProjectId={currentProjectId}
+                              currentChatId={currentChatId || 'new'}
+                              projects={projects}
+                              onProjectChange={onProjectChange}
+                            />
+                            <ChatDropdown
+                              projectId={currentProjectId}
+                              currentChatId={currentChatId || 'new'}
+                              chats={projectChats}
+                              onChatChange={onChatChange}
+                            />
+                          </>
+                        ) : currentProjectId ? (
+                          // Placeholder to prevent layout shift
+                          <div className="flex gap-0">
+                            <div className="h-8 w-24 bg-transparent"></div>
+                            <div className="h-8 w-20 bg-transparent"></div>
+                          </div>
+                        ) : null}
+                      </div>
 
-                    <div className="flex items-center space-x-3">
-                      {/* v0.dev Link */}
-                      <a
-                        href={chatData?.url || 'https://v0.dev'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
-                      >
-                        View on v0.dev
-                      </a>
+                      <div className="flex items-center gap-3">
+                        {/* Desktop: v0.dev Link */}
+                        <a
+                          href={chatData?.url || 'https://v0.dev'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hidden sm:block text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          View on v0.dev
+                        </a>
 
-                      {/* More Options Menu */}
-                      {showDropdowns && currentProjectId && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 mr-2.5"
-                            >
-                              <MoreVerticalIcon className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" side="top">
-                            {/* Settings */}
-                            <SettingsDialog />
+                        {/* Single More Options Menu */}
+                        {showDropdowns && currentProjectId && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 ml-2 sm:ml-0"
+                              >
+                                <MoreVerticalIcon className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" side="top">
+                              {/* Settings */}
+                              <SettingsDialog />
 
-                            {/* Delete Chat */}
-                            {currentChatId &&
-                              currentChatId !== 'new' &&
-                              onDeleteChat && (
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem
-                                      onSelect={(e) => e.preventDefault()}
-                                    >
-                                      <TrashIcon className="mr-2 h-4 w-4" />
-                                      Delete Chat
-                                    </DropdownMenuItem>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>
-                                        Delete Chat
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to delete this
-                                        chat? This action cannot be undone.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>
-                                        Cancel
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={onDeleteChat}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              {/* View on v0.dev - only show on mobile */}
+                              <DropdownMenuItem asChild className="sm:hidden">
+                                <a
+                                  href={chatData?.url || 'https://v0.dev'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center"
+                                >
+                                  <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                  View on v0.dev
+                                </a>
+                              </DropdownMenuItem>
+
+                              {/* Delete Chat */}
+                              {currentChatId &&
+                                currentChatId !== 'new' &&
+                                onDeleteChat && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <DropdownMenuItem
+                                        onSelect={(e) => e.preventDefault()}
                                       >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                                        <TrashIcon className="mr-2 h-4 w-4" />
+                                        Delete Chat
+                                      </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>
+                                          Delete Chat
+                                        </AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to delete this
+                                          chat? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                          Cancel
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={onDeleteChat}
+                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                          Delete
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </form>
