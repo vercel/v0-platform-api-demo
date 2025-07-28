@@ -9,6 +9,7 @@ import {
   PaperclipIcon,
   MicIcon,
 } from 'lucide-react'
+import { V0Logo } from '../../components/v0-logo'
 import SettingsDialog from './settings-dialog'
 import RenameChatDialog from './rename-chat-dialog'
 import { useSettings } from '../../lib/hooks/useSettings'
@@ -192,9 +193,14 @@ export default function PromptComponent({
 
   // Save prompt to sessionStorage whenever it changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && prompt) {
+    if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem(PROMPT_STORAGE_KEY, prompt)
+        if (prompt) {
+          sessionStorage.setItem(PROMPT_STORAGE_KEY, prompt)
+        } else {
+          // Clear sessionStorage when prompt is empty
+          sessionStorage.removeItem(PROMPT_STORAGE_KEY)
+        }
       } catch (error) {
         // Silently handle sessionStorage errors
         console.warn('Failed to save prompt to sessionStorage:', error)
@@ -398,12 +404,12 @@ export default function PromptComponent({
               setShouldAnimate(true)
               setIsPromptExpanded(true)
             }}
-            className="text-foreground bg-background border border-border p-4 rounded-full shadow-lg transition-all duration-200 cursor-pointer hover:opacity-80"
+            className="text-foreground bg-background border border-border w-14 h-14 rounded-full shadow-lg transition-all duration-200 cursor-pointer hover:opacity-80 flex items-center justify-center"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-foreground border-t-transparent"></div>
             ) : (
-              <img src="/v0-logo.svg" alt="v0" className="w-6 h-6" />
+              <V0Logo size={24} className="text-foreground" />
             )}
           </button>
         </div>
@@ -630,26 +636,6 @@ export default function PromptComponent({
                       <div className="flex items-center gap-3">
                         {/* Button group with spacing */}
                         <div className="flex items-center gap-2">
-                          {/* Deploy with Vercel button - Desktop only */}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="hidden sm:flex h-8 px-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground"
-                            asChild
-                          >
-                            <a
-                              href="https://vercel.com/new/clone?demo-description=A%20Next.js%20application%20demonstrating%20the%20v0%20Platform%20API&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F28EABpFanXbK3bENHYGPe7%2F2b37a0cf17f3f8f9a19ee23e539b62eb%2Fscreenshot.png&demo-title=v0%20Platform%20API%20Demo&demo-url=https%3A%2F%2Fv0-centered-text-om.vercel.sh%2F&from=templates&project-name=v0%20Platform%20API%20Demo&repository-name=v0-platform-api-demo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fv0-platform-api-demo&skippable-integrations=1"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-2"
-                            >
-                              <svg className="h-4 w-4" viewBox="0 0 76 76" fill="none">
-                                <path d="M38 1L74 74H2L38 1Z" fill="currentColor"/>
-                              </svg>
-                              Deploy with Vercel
-                            </a>
-                          </Button>
-
                           {/* GitHub button - Desktop only */}
                           <Button
                             variant="ghost"
@@ -663,8 +649,16 @@ export default function PromptComponent({
                               rel="noopener noreferrer"
                               className="flex items-center justify-center"
                             >
-                              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
+                              <svg
+                                className="h-4 w-4"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
+                                  clipRule="evenodd"
+                                />
                               </svg>
                             </a>
                           </Button>
@@ -681,21 +675,6 @@ export default function PromptComponent({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" side="top">
-                              {/* Deploy with Vercel - Mobile only */}
-                              <DropdownMenuItem asChild className="sm:hidden">
-                                <a
-                                  href="https://vercel.com/new/clone?demo-description=A%20Next.js%20application%20demonstrating%20the%20v0%20Platform%20API&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F28EABpFanXbK3bENHYGPe7%2F2b37a0cf17f3f8f9a19ee23e539b62eb%2Fscreenshot.png&demo-title=v0%20Platform%20API%20Demo&demo-url=https%3A%2F%2Fv0-centered-text-om.vercel.sh%2F&from=templates&project-name=v0%20Platform%20API%20Demo&repository-name=v0-platform-api-demo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fv0-platform-api-demo&skippable-integrations=1"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center"
-                                >
-                                  <svg className="mr-2 h-4 w-4" viewBox="0 0 76 76" fill="none">
-                                    <path d="M38 1L74 74H2L38 1Z" fill="currentColor"/>
-                                  </svg>
-                                  Deploy with Vercel
-                                </a>
-                              </DropdownMenuItem>
-                              
                               {/* GitHub - Mobile only */}
                               <DropdownMenuItem asChild className="sm:hidden">
                                 <a
@@ -704,8 +683,16 @@ export default function PromptComponent({
                                   rel="noopener noreferrer"
                                   className="flex items-center"
                                 >
-                                  <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
+                                  <svg
+                                    className="mr-2 h-4 w-4"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
+                                      clipRule="evenodd"
+                                    />
                                   </svg>
                                   View on GitHub
                                 </a>

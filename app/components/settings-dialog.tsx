@@ -21,7 +21,6 @@ import { DropdownMenuItem as DialogDropdownMenuItem } from '@/components/ui/drop
 import { SettingsIcon, ChevronDownIcon, CheckIcon } from 'lucide-react'
 import { Settings, ModelType, useSettings } from '../../lib/hooks/useSettings'
 
-
 interface SettingsDialogProps {
   trigger?: React.ReactNode
 }
@@ -130,14 +129,10 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
             </DropdownMenu>
           </div>
 
-
-
           {/* Image Generations */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <h3 className="text-sm font-medium">
-                Image Generations
-              </h3>
+              <h3 className="text-sm font-medium">Image Generations</h3>
               <p className="text-xs text-muted-foreground">
                 Enable AI-generated images in your apps
               </p>
