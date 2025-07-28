@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreVerticalIcon, TrashIcon } from 'lucide-react'
+import { MoreVerticalIcon, TrashIcon, XIcon } from 'lucide-react'
 import SettingsDialog from './settings-dialog'
 import { useSettings } from '../../lib/hooks/useSettings'
 import {
@@ -290,77 +290,90 @@ export default function PromptComponent({
                           View on v0.dev
                         </a>
 
-                        {/* Single More Options Menu */}
-                        {showDropdowns && currentProjectId && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0 ml-2 sm:ml-0"
-                              >
-                                <MoreVerticalIcon className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" side="top">
-                              {/* Settings */}
-                              <SettingsDialog />
-
-                              {/* View on v0.dev - only show on mobile */}
-                              <DropdownMenuItem asChild className="sm:hidden">
-                                <a
-                                  href={chatData?.url || 'https://v0.dev'}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center"
+                        {/* Button group with no gap */}
+                        <div className="flex items-center">
+                          {/* Single More Options Menu */}
+                          {showDropdowns && currentProjectId && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 ml-2 sm:ml-0"
                                 >
-                                  <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                  </svg>
-                                  View on v0.dev
-                                </a>
-                              </DropdownMenuItem>
+                                  <MoreVerticalIcon className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" side="top">
+                                {/* Settings */}
+                                <SettingsDialog />
 
-                              {/* Delete Chat */}
-                              {currentChatId &&
-                                currentChatId !== 'new' &&
-                                onDeleteChat && (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                      <DropdownMenuItem
-                                        onSelect={(e) => e.preventDefault()}
-                                      >
-                                        <TrashIcon className="mr-2 h-4 w-4" />
-                                        Delete Chat
-                                      </DropdownMenuItem>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                          Delete Chat
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          Are you sure you want to delete this
-                                          chat? This action cannot be undone.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>
-                                          Cancel
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          onClick={onDeleteChat}
-                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                {/* View on v0.dev - only show on mobile */}
+                                <DropdownMenuItem asChild className="sm:hidden">
+                                  <a
+                                    href={chatData?.url || 'https://v0.dev'}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center"
+                                  >
+                                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    View on v0.dev
+                                  </a>
+                                </DropdownMenuItem>
+
+                                {/* Delete Chat */}
+                                {currentChatId &&
+                                  currentChatId !== 'new' &&
+                                  onDeleteChat && (
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem
+                                          onSelect={(e) => e.preventDefault()}
                                         >
-                                          Delete
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
+                                          <TrashIcon className="mr-2 h-4 w-4" />
+                                          Delete Chat
+                                        </DropdownMenuItem>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>
+                                            Delete Chat
+                                          </AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            Are you sure you want to delete this
+                                            chat? This action cannot be undone.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>
+                                            Cancel
+                                          </AlertDialogCancel>
+                                          <AlertDialogAction
+                                            onClick={onDeleteChat}
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                          >
+                                            Delete
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+
+                          {/* Close button - only show on mobile */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 sm:hidden"
+                            onClick={() => setIsPromptExpanded(false)}
+                          >
+                            <XIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
