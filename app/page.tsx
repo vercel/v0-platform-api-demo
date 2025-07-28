@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import PromptComponent from './components/prompt-component'
 import ApiKeyError from './components/api-key-error'
 import RateLimitDialog from './components/rate-limit-dialog'
+import ErrorDialog from './components/error-dialog'
 import { useApiValidation } from '../lib/hooks/useApiValidation'
 
 export default function HomePage() {
@@ -21,6 +22,8 @@ export default function HomePage() {
     resetTime?: string
     remaining?: number
   }>({})
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
@@ -172,7 +175,9 @@ export default function HomePage() {
           return
         }
 
-        throw new Error(errorData.error || 'Failed to generate app')
+        setErrorMessage(errorData.error || 'Failed to generate app')
+        setShowErrorDialog(true)
+        return
       }
 
       const data = await response.json()
@@ -185,12 +190,12 @@ export default function HomePage() {
         return
       }
     } catch (err) {
-      setError(
+      setErrorMessage(
         err instanceof Error
           ? err.message
           : 'Failed to generate app. Please try again.',
       )
-      throw err // Re-throw to prevent clearing prompt
+      setShowErrorDialog(true)
     } finally {
       setIsLoading(false)
     }
@@ -210,7 +215,7 @@ export default function HomePage() {
           style={{ transform: 'translateY(-25%)' }}
         >
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4 text-pretty">
-            What can I help you build?
+            v0 Platform API Demo
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
             This is a demo of the{' '}
@@ -251,7 +256,6 @@ export default function HomePage() {
       <PromptComponent
         onSubmit={handleSubmit}
         isLoading={isLoading}
-        error={error}
         placeholder="Describe your app..."
         showDropdowns={projectsLoaded}
         projects={projects}
@@ -267,6 +271,12 @@ export default function HomePage() {
         onClose={() => setShowRateLimitDialog(false)}
         resetTime={rateLimitInfo.resetTime}
         remaining={rateLimitInfo.remaining}
+      />
+
+      <ErrorDialog
+        isOpen={showErrorDialog}
+        onClose={() => setShowErrorDialog(false)}
+        message={errorMessage}
       />
     </div>
   )

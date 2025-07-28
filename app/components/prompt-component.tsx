@@ -104,8 +104,8 @@ interface PromptComponentProps {
   // Loading state from parent
   isLoading: boolean
 
-  // Error state from parent
-  error: string | null
+  // Error state from parent (optional - now shown in dialogs)
+  error?: string | null
 
   // Placeholder text
   placeholder?: string

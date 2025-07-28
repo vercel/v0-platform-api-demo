@@ -6,6 +6,7 @@ import { ProjectDropdown, ChatDropdown } from './components'
 import PromptComponent from '../../../../components/prompt-component'
 import ApiKeyError from '../../../../components/api-key-error'
 import RateLimitDialog from '../../../../components/rate-limit-dialog'
+import ErrorDialog from '../../../../components/error-dialog'
 import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
 
 export default function ChatPage() {
@@ -27,6 +28,8 @@ export default function ChatPage() {
     resetTime?: string
     remaining?: number
   }>({})
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
@@ -320,7 +323,9 @@ export default function ChatPage() {
           return
         }
 
-        throw new Error(errorData.error || 'Failed to generate app')
+        setErrorMessage(errorData.error || 'Failed to generate app')
+        setShowErrorDialog(true)
+        return
       }
 
       const data = await response.json()
@@ -371,12 +376,12 @@ export default function ChatPage() {
         setGeneratedApp(fallbackPreview)
       }
     } catch (err) {
-      setError(
+      setErrorMessage(
         err instanceof Error
           ? err.message
           : 'Failed to generate app. Please try again.',
       )
-      throw err // Re-throw to prevent clearing prompt
+      setShowErrorDialog(true)
     } finally {
       setIsLoading(false)
     }
@@ -414,7 +419,6 @@ export default function ChatPage() {
       <PromptComponent
         onSubmit={handleSubmit}
         isLoading={isLoading}
-        error={error}
         placeholder={
           chatId !== 'new' && chatId !== 'new-chat'
             ? 'Refine your app...'
@@ -437,6 +441,12 @@ export default function ChatPage() {
         onClose={() => setShowRateLimitDialog(false)}
         resetTime={rateLimitInfo.resetTime}
         remaining={rateLimitInfo.remaining}
+      />
+
+      <ErrorDialog
+        isOpen={showErrorDialog}
+        onClose={() => setShowErrorDialog(false)}
+        message={errorMessage}
       />
     </div>
   )

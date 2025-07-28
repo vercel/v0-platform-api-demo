@@ -71,9 +71,6 @@ export default function DeployBanner() {
           <div className="py-3 px-4">
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
               <div className="flex flex-col gap-1 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">v0 Platform API Demo</span>
-                </div>
                 <div className="text-sm text-muted-foreground">
                   Deploy your own copy of this demo to get started building with
                   the v0 Platform API.
