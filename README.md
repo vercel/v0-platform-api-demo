@@ -15,12 +15,14 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
    Create a `.env.local` file in the root directory:
    ```env
    V0_API_KEY=your_api_key_here
+   
+   # Optional: For rate limiting (if not provided, rate limiting is disabled)
    UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url
    UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token
    ```
    
    - Get your v0 API key from [v0.dev/settings](https://v0.dev/settings)
-   - Get your Upstash Redis credentials from [upstash.com](https://upstash.com) (required for rate limiting)
+   - Optionally get your Upstash Redis credentials from [upstash.com](https://upstash.com) for rate limiting
 
 3. **Run development server:**
    ```bash
@@ -67,12 +69,13 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
 
 ## Rate Limiting
 
-This application implements rate limiting to prevent abuse and ensure fair usage:
+This application implements optional rate limiting to prevent abuse and ensure fair usage:
 
 - **Limit:** 3 new chat generations per 12 hours per IP address
 - **Scope:** Only applies to new chat creation (`v0.chats.create()`)
 - **Existing chats:** Continuing conversations with `v0.chats.sendMessage()` is unlimited
 - **Implementation:** Uses Upstash Redis with a sliding window algorithm
+- **Optional:** If Upstash credentials are not provided, rate limiting is disabled
 - **Fallback:** If rate limiting service is unavailable, requests are allowed (fail-open strategy)
 
 When the rate limit is exceeded, users receive a 429 status code with information about when they can try again.
@@ -106,8 +109,8 @@ When the rate limit is exceeded, users receive a 429 status code with informatio
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `V0_API_KEY` | Yes | Your v0 Platform API key from [v0.dev/settings](https://v0.dev/settings) |
-| `UPSTASH_REDIS_REST_URL` | Yes | Upstash Redis REST URL for rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN` | Yes | Upstash Redis REST token for rate limiting |
+| `UPSTASH_REDIS_REST_URL` | No | Upstash Redis REST URL for rate limiting (if not provided, rate limiting is disabled) |
+| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token for rate limiting (if not provided, rate limiting is disabled) |
 
 ## Development Commands
 
