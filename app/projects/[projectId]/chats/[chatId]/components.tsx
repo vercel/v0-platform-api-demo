@@ -120,12 +120,12 @@ export function ProjectDropdown({
       role="combobox"
       aria-expanded={open}
     >
-      <span className="text-sm text-gray-600 truncate">
+      <span className="text-sm text-gray-900 dark:text-white truncate">
         {currentProjectId === 'new'
           ? 'New Project'
           : currentProject?.name || 'Project'}
       </span>
-      <ChevronDownIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+      <ChevronDownIcon className="h-4 w-4 text-gray-600 dark:text-white flex-shrink-0" />
     </Button>
   )
 
@@ -288,10 +288,10 @@ export function ChatDropdown({
       role="combobox"
       aria-expanded={open}
     >
-      <span className="text-sm text-gray-600 truncate">
+      <span className="text-sm text-gray-900 dark:text-white truncate">
         {currentChat ? getChatTitle(currentChat) : 'New Chat'}
       </span>
-      <ChevronDownIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
+      <ChevronDownIcon className="h-4 w-4 text-gray-600 dark:text-white flex-shrink-0" />
     </Button>
   )
 

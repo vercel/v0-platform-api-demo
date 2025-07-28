@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ProjectDropdown, ChatDropdown } from './components'
 import PromptComponent from '../../../../components/prompt-component'
 import ApiKeyError from '../../../../components/api-key-error'
+import RateLimitDialog from '../../../../components/rate-limit-dialog'
 import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
 
 export default function ChatPage() {
@@ -21,6 +22,11 @@ export default function ChatPage() {
   const [projectChatsLoaded, setProjectChatsLoaded] = useState(false)
   const [projects, setProjects] = useState<any[]>([])
   const [projectsLoaded, setProjectsLoaded] = useState(false)
+  const [showRateLimitDialog, setShowRateLimitDialog] = useState(false)
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    resetTime?: string
+    remaining?: number
+  }>({})
 
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
@@ -306,7 +312,12 @@ export default function ChatPage() {
 
         // Check for rate limit error
         if (response.status === 429 && errorData.error === 'RATE_LIMIT_EXCEEDED') {
-          throw new Error(errorData.message || 'Rate limit exceeded. Please try again later.')
+          setRateLimitInfo({
+            resetTime: errorData.resetTime,
+            remaining: errorData.remaining
+          })
+          setShowRateLimitDialog(true)
+          return
         }
 
         throw new Error(errorData.error || 'Failed to generate app')
@@ -419,6 +430,13 @@ export default function ChatPage() {
         onChatChange={handleChatChange}
         onDeleteChat={handleDeleteChat}
         onRenameChat={handleRenameChat}
+      />
+
+      <RateLimitDialog
+        isOpen={showRateLimitDialog}
+        onClose={() => setShowRateLimitDialog(false)}
+        resetTime={rateLimitInfo.resetTime}
+        remaining={rateLimitInfo.remaining}
       />
     </div>
   )

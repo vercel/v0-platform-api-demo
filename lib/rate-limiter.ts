@@ -2,8 +2,8 @@ import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
 // Check if Upstash credentials are available
-const upstashUrl = process.env.UPSTASH_REDIS_REST_URL
-const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN
+const upstashUrl = process.env.KV_REST_API_URL
+const upstashToken = process.env.KV_REST_API_TOKEN
 const isRateLimitingEnabled = upstashUrl && upstashToken && upstashUrl.trim() !== '' && upstashToken.trim() !== ''
 
 // Create Redis instance and rate limiter only if credentials are available

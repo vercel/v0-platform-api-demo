@@ -17,8 +17,8 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
    V0_API_KEY=your_api_key_here
    
    # Optional: For rate limiting (if not provided, rate limiting is disabled)
-   UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url
-   UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token
+   KV_REST_API_URL=your_kv_rest_api_url
+   KV_REST_API_TOKEN=your_kv_rest_api_token
    ```
    
    - Get your v0 API key from [v0.dev/settings](https://v0.dev/settings)
@@ -109,8 +109,8 @@ When the rate limit is exceeded, users receive a 429 status code with informatio
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `V0_API_KEY` | Yes | Your v0 Platform API key from [v0.dev/settings](https://v0.dev/settings) |
-| `UPSTASH_REDIS_REST_URL` | No | Upstash Redis REST URL for rate limiting (if not provided, rate limiting is disabled) |
-| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token for rate limiting (if not provided, rate limiting is disabled) |
+| `KV_REST_API_URL` | No | Upstash Redis REST URL for rate limiting (if not provided, rate limiting is disabled) |
+| `KV_REST_API_TOKEN` | No | Upstash Redis REST token for rate limiting (if not provided, rate limiting is disabled) |
 
 ## Development Commands
 

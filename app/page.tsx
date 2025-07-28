@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import PromptComponent from './components/prompt-component'
 import ApiKeyError from './components/api-key-error'
+import RateLimitDialog from './components/rate-limit-dialog'
 import { useApiValidation } from '../lib/hooks/useApiValidation'
 
 export default function HomePage() {
@@ -15,6 +16,11 @@ export default function HomePage() {
   const [selectedProjectId, setSelectedProjectId] = useState('new')
   const [selectedChatId, setSelectedChatId] = useState('new')
   const [projectChats, setProjectChats] = useState<any[]>([])
+  const [showRateLimitDialog, setShowRateLimitDialog] = useState(false)
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    resetTime?: string
+    remaining?: number
+  }>({})
 
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
@@ -158,7 +164,12 @@ export default function HomePage() {
 
         // Check for rate limit error
         if (response.status === 429 && errorData.error === 'RATE_LIMIT_EXCEEDED') {
-          throw new Error(errorData.message || 'Rate limit exceeded. Please try again later.')
+          setRateLimitInfo({
+            resetTime: errorData.resetTime,
+            remaining: errorData.remaining
+          })
+          setShowRateLimitDialog(true)
+          return
         }
 
         throw new Error(errorData.error || 'Failed to generate app')
@@ -249,6 +260,13 @@ export default function HomePage() {
         currentChatId={selectedChatId}
         onProjectChange={handleProjectChange}
         onChatChange={handleChatChange}
+      />
+
+      <RateLimitDialog
+        isOpen={showRateLimitDialog}
+        onClose={() => setShowRateLimitDialog(false)}
+        resetTime={rateLimitInfo.resetTime}
+        remaining={rateLimitInfo.remaining}
       />
     </div>
   )
