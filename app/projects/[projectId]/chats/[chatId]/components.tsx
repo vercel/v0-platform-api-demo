@@ -9,6 +9,13 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
+import {
   Command,
   CommandInput,
   CommandList,
@@ -45,6 +52,24 @@ interface ChatDropdownProps {
   onChatChange?: (chatId: string) => void
 }
 
+// Hook to detect mobile screen size
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768) // md breakpoint
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => window.removeEventListener('resize', checkIsMobile)
+  }, [])
+  
+  return isMobile
+}
+
 export function ProjectDropdown({
   currentProjectId,
   currentChatId,
@@ -55,6 +80,7 @@ export function ProjectDropdown({
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [open, setOpen] = useState(false)
   const prevProjectsLengthRef = useRef(projects.length)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const project = projects.find((p) => p.id === currentProjectId)
@@ -86,57 +112,83 @@ export function ProjectDropdown({
     }
   }
 
+  const triggerButton = (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="gap-1 justify-start"
+      role="combobox"
+      aria-expanded={open}
+    >
+      <span className="text-sm text-gray-600">
+        {currentProjectId === 'new'
+          ? 'New Project'
+          : currentProject?.name || 'Project'}
+      </span>
+      <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+    </Button>
+  )
+
+  const commandContent = (
+    <Command>
+      <CommandInput placeholder="Search projects..." />
+      <CommandList className="max-h-[200px]">
+        <CommandEmpty>No projects found.</CommandEmpty>
+        <CommandGroup>
+          <CommandItem
+            value="new-project"
+            onSelect={() => handleProjectSelect('new')}
+            className="justify-between"
+          >
+            <span>+ New Project</span>
+          </CommandItem>
+          {projects.length > 0 && <CommandSeparator />}
+          {projects.map((project) => (
+            <CommandItem
+              key={project.id}
+              value={project.name || 'Untitled Project'}
+              onSelect={() => handleProjectSelect(project.id)}
+              className={cn(
+                'justify-between',
+                project.id === currentProjectId && 'bg-accent',
+              )}
+            >
+              <span>{project.name || 'Untitled Project'}</span>
+              {project.id === currentProjectId && (
+                <CheckIcon className="h-4 w-4" />
+              )}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  )
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={handleOpenChange}>
+        <DrawerTrigger asChild>
+          {triggerButton}
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Select Project</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4">
+            {commandContent}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    )
+  }
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1 justify-start"
-          role="combobox"
-          aria-expanded={open}
-        >
-          <span className="text-sm text-gray-600">
-            {currentProjectId === 'new'
-              ? 'New Project'
-              : currentProject?.name || 'Project'}
-          </span>
-          <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-        </Button>
+        {triggerButton}
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Search projects..." />
-          <CommandList className="max-h-[200px]">
-            <CommandEmpty>No projects found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                value="new-project"
-                onSelect={() => handleProjectSelect('new')}
-                className="justify-between"
-              >
-                <span>+ New Project</span>
-              </CommandItem>
-              {projects.length > 0 && <CommandSeparator />}
-              {projects.map((project) => (
-                <CommandItem
-                  key={project.id}
-                  value={project.name || 'Untitled Project'}
-                  onSelect={() => handleProjectSelect(project.id)}
-                  className={cn(
-                    'justify-between',
-                    project.id === currentProjectId && 'bg-accent',
-                  )}
-                >
-                  <span>{project.name || 'Untitled Project'}</span>
-                  {project.id === currentProjectId && (
-                    <CheckIcon className="h-4 w-4" />
-                  )}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+        {commandContent}
       </PopoverContent>
     </Popover>
   )
@@ -151,6 +203,7 @@ export function ChatDropdown({
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const prevChatsLengthRef = useRef(chats.length)
+  const isMobile = useIsMobile()
 
   const currentChat = chats.find((c) => c.id === currentChatId)
 
@@ -233,68 +286,94 @@ export function ChatDropdown({
     return chat.title || chat.name || 'Untitled Chat'
   }
 
+  const triggerButton = (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="gap-1 justify-start"
+      role="combobox"
+      aria-expanded={open}
+    >
+      <span className="text-sm text-gray-600">
+        {currentChat ? getChatTitle(currentChat) : 'New Chat'}
+      </span>
+      <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+    </Button>
+  )
+
+  const commandContent = (
+    <Command>
+      <CommandInput placeholder="Search chats..." />
+      <CommandList className="max-h-[200px]">
+        <CommandEmpty>No chats found.</CommandEmpty>
+        <CommandGroup>
+          <CommandItem
+            value="new-from-scratch"
+            onSelect={() => handleChatSelect('new-from-scratch')}
+            className={cn(
+              'justify-between',
+              currentChatId === 'new' && 'bg-accent',
+            )}
+          >
+            <span>+ New from Scratch</span>
+            {currentChatId === 'new' && <CheckIcon className="h-4 w-4" />}
+          </CommandItem>
+          {chats.length > 0 && (
+            <CommandItem
+              value="new-from-latest"
+              onSelect={() => handleChatSelect('new-from-latest')}
+              className="justify-between"
+            >
+              <span>+ New from Latest</span>
+            </CommandItem>
+          )}
+          {chats.length > 0 && <CommandSeparator />}
+          {chats.map((chat) => (
+            <CommandItem
+              key={chat.id}
+              value={getChatTitle(chat)}
+              onSelect={() => handleChatSelect(chat.id)}
+              className={cn(
+                'justify-between',
+                chat.id === currentChatId && 'bg-accent',
+              )}
+            >
+              <span>{getChatTitle(chat)}</span>
+              {chat.id === currentChatId && (
+                <CheckIcon className="h-4 w-4" />
+              )}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  )
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={handleOpenChange}>
+        <DrawerTrigger asChild>
+          {triggerButton}
+        </DrawerTrigger>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Select Chat</DrawerTitle>
+          </DrawerHeader>
+          <div className="px-4 pb-4">
+            {commandContent}
+          </div>
+        </DrawerContent>
+      </Drawer>
+    )
+  }
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1 justify-start"
-          role="combobox"
-          aria-expanded={open}
-        >
-          <span className="text-sm text-gray-600">
-            {currentChat ? getChatTitle(currentChat) : 'New Chat'}
-          </span>
-          <ChevronDownIcon className="h-4 w-4 text-gray-400" />
-        </Button>
+        {triggerButton}
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder="Search chats..." />
-          <CommandList className="max-h-[200px]">
-            <CommandEmpty>No chats found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                value="new-from-scratch"
-                onSelect={() => handleChatSelect('new-from-scratch')}
-                className={cn(
-                  'justify-between',
-                  currentChatId === 'new' && 'bg-accent',
-                )}
-              >
-                <span>+ New from Scratch</span>
-                {currentChatId === 'new' && <CheckIcon className="h-4 w-4" />}
-              </CommandItem>
-              {chats.length > 0 && (
-                <CommandItem
-                  value="new-from-latest"
-                  onSelect={() => handleChatSelect('new-from-latest')}
-                  className="justify-between"
-                >
-                  <span>+ New from Latest</span>
-                </CommandItem>
-              )}
-              {chats.length > 0 && <CommandSeparator />}
-              {chats.map((chat) => (
-                <CommandItem
-                  key={chat.id}
-                  value={getChatTitle(chat)}
-                  onSelect={() => handleChatSelect(chat.id)}
-                  className={cn(
-                    'justify-between',
-                    chat.id === currentChatId && 'bg-accent',
-                  )}
-                >
-                  <span>{getChatTitle(chat)}</span>
-                  {chat.id === currentChatId && (
-                    <CheckIcon className="h-4 w-4" />
-                  )}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+        {commandContent}
       </PopoverContent>
     </Popover>
   )
