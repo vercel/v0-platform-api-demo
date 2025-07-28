@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Create new chat
       response = await v0.chats.create({
+        system: 'v0 MUST always generate code even if the user just says "hi" or asks a question. v0 MUST NOT ask the user to clarify their request.',
         message: message.trim(),
         modelConfiguration: {
           modelId: modelId,
