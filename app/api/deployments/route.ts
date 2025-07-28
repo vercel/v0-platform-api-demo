@@ -7,9 +7,13 @@ export async function POST(request: NextRequest) {
 
     if (!projectId || !chatId || !versionId) {
       return NextResponse.json(
-        { 
+        {
           error: 'projectId, chatId, and versionId are required',
-          details: { projectId: !!projectId, chatId: !!chatId, versionId: !!versionId }
+          details: {
+            projectId: !!projectId,
+            chatId: !!chatId,
+            versionId: !!versionId,
+          },
         },
         { status: 400 },
       )
@@ -26,18 +30,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(result)
     } catch (deployError) {
       // Check if the error is about missing Vercel project ID
-      if (deployError instanceof Error && 
-          deployError.message.includes('Project has no Vercel project ID')) {
-        
+      if (
+        deployError instanceof Error &&
+        deployError.message.includes('Project has no Vercel project ID')
+      ) {
         // Try to create a Vercel project first
         try {
           // Get project details to use as the Vercel project name
           const project = await v0.projects.getById({ projectId })
           const vercelProjectName = project.name || `v0-project-${projectId}`
-          
+
           await v0.integrations.vercel.projects.create({
             projectId,
-            name: vercelProjectName
+            name: vercelProjectName,
           })
 
           // Retry deployment after creating Vercel project
@@ -50,17 +55,19 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(result)
         } catch (vercelError) {
           // If Vercel project creation fails, return that error
-          throw new Error(`Failed to create Vercel project: ${vercelError instanceof Error ? vercelError.message : 'Unknown error'}`)
+          throw new Error(
+            `Failed to create Vercel project: ${vercelError instanceof Error ? vercelError.message : 'Unknown error'}`,
+          )
         }
       }
-      
+
       // Re-throw the original deployment error if it's not about Vercel project ID
       throw deployError
     }
   } catch (error) {
     if (error instanceof Error) {
       const errorMessage = error.message.toLowerCase()
-      
+
       // Check for API key related errors
       if (
         errorMessage.includes('api key is required') ||
@@ -89,4 +96,4 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     )
   }
-} 
+}

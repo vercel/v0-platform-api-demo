@@ -66,7 +66,9 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
     },
   ]
 
-  const currentModel = modelOptions.find(option => option.value === tempSettings.model)
+  const currentModel = modelOptions.find(
+    (option) => option.value === tempSettings.model,
+  )
 
   const defaultTrigger = (
     <DialogDropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -113,7 +115,9 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
                     <div className="flex items-center justify-between w-full">
                       <div className="flex flex-col">
                         <span className="font-medium">{option.label}</span>
-                        <span className="text-xs text-gray-500">{option.description}</span>
+                        <span className="text-xs text-gray-500">
+                          {option.description}
+                        </span>
                       </div>
                       {tempSettings.model === option.value && (
                         <CheckIcon className="h-4 w-4 text-primary" />
@@ -128,8 +132,12 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
           {/* Image Generations */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <h3 className="text-sm font-medium text-gray-900">Image Generations</h3>
-              <p className="text-xs text-gray-500">Enable AI-generated images in your apps</p>
+              <h3 className="text-sm font-medium text-gray-900">
+                Image Generations
+              </h3>
+              <p className="text-xs text-gray-500">
+                Enable AI-generated images in your apps
+              </p>
             </div>
             <Switch
               checked={tempSettings.imageGenerations}
@@ -146,7 +154,9 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <h3 className="text-sm font-medium text-gray-900">Thinking</h3>
-              <p className="text-xs text-gray-500">Show AI reasoning process during generation</p>
+              <p className="text-xs text-gray-500">
+                Show AI reasoning process during generation
+              </p>
             </div>
             <Switch
               checked={tempSettings.thinking}

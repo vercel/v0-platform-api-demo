@@ -124,7 +124,10 @@ export default function HomePage() {
     setSelectedChatId(newChatId)
   }
 
-  const handleSubmit = async (prompt: string, settings: { modelId: string; imageGenerations: boolean; thinking: boolean }) => {
+  const handleSubmit = async (
+    prompt: string,
+    settings: { modelId: string; imageGenerations: boolean; thinking: boolean },
+  ) => {
     setIsLoading(true)
     setError(null)
 

@@ -270,7 +270,10 @@ export default function ChatPage() {
     }
   }
 
-  const handleSubmit = async (prompt: string, settings: { modelId: string; imageGenerations: boolean; thinking: boolean }) => {
+  const handleSubmit = async (
+    prompt: string,
+    settings: { modelId: string; imageGenerations: boolean; thinking: boolean },
+  ) => {
     setIsLoading(true)
     setError(null)
 
