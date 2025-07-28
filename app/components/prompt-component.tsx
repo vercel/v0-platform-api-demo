@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreVerticalIcon, TrashIcon, XIcon, PaperclipIcon, MicIcon } from 'lucide-react'
+import {
+  MoreVerticalIcon,
+  TrashIcon,
+  XIcon,
+  PaperclipIcon,
+  MicIcon,
+} from 'lucide-react'
 import SettingsDialog from './settings-dialog'
 import RenameChatDialog from './rename-chat-dialog'
 import { useSettings } from '../../lib/hooks/useSettings'
@@ -114,15 +120,17 @@ export default function PromptComponent({
   // Check for speech recognition support
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition
       setSpeechSupported(!!SpeechRecognition)
-      
+
       if (SpeechRecognition) {
         recognitionRef.current = new SpeechRecognition()
         recognitionRef.current.continuous = true
         recognitionRef.current.interimResults = true
         recognitionRef.current.lang = 'en-US'
-        
+
         recognitionRef.current.onresult = (event: any) => {
           let finalTranscript = ''
           for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -131,14 +139,14 @@ export default function PromptComponent({
             }
           }
           if (finalTranscript) {
-            setPrompt(prev => prev + finalTranscript)
+            setPrompt((prev) => prev + finalTranscript)
           }
         }
-        
+
         recognitionRef.current.onend = () => {
           setIsListening(false)
         }
-        
+
         recognitionRef.current.onerror = () => {
           setIsListening(false)
         }
@@ -155,7 +163,7 @@ export default function PromptComponent({
 
   const toggleListening = () => {
     if (!recognitionRef.current) return
-    
+
     if (isListening) {
       recognitionRef.current.stop()
       setIsListening(false)
@@ -216,11 +224,15 @@ export default function PromptComponent({
     setShouldAnimate(false) // Reset animation state
 
     try {
-      await onSubmit(prompt.trim(), {
-        modelId: settings.model,
-        imageGenerations: settings.imageGenerations,
-        thinking: settings.thinking,
-      }, attachments)
+      await onSubmit(
+        prompt.trim(),
+        {
+          modelId: settings.model,
+          imageGenerations: settings.imageGenerations,
+          thinking: settings.thinking,
+        },
+        attachments,
+      )
       // Clear the prompt and attachments after successful submission
       setPrompt('')
       setAttachments([])
@@ -236,24 +248,24 @@ export default function PromptComponent({
 
   const handleFileSelect = async (files: FileList) => {
     const newAttachments: Attachment[] = []
-    
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      
+
       // Convert file to data URL
       const dataUrl = await new Promise<string>((resolve) => {
         const reader = new FileReader()
         reader.onload = (e) => resolve(e.target?.result as string)
         reader.readAsDataURL(file)
       })
-      
+
       newAttachments.push({
         url: dataUrl,
         name: file.name,
         type: file.type,
       })
     }
-    
+
     setAttachments([...attachments, ...newAttachments])
   }
 
@@ -365,8 +377,8 @@ export default function PromptComponent({
                         onClick={toggleListening}
                         disabled={isLoading}
                         className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg transition-all duration-200 cursor-pointer disabled:cursor-not-allowed ${
-                          isListening 
-                            ? 'text-red-600 bg-red-50 hover:text-red-700 hover:bg-red-100' 
+                          isListening
+                            ? 'text-red-600 bg-red-50 hover:text-red-700 hover:bg-red-100'
                             : 'text-gray-600 hover:text-gray-900 disabled:text-gray-300'
                         }`}
                         style={{ right: '80px' }}
