@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
       modelId = 'v0-1.5-md',
       imageGenerations = false,
       thinking = false,
+      attachments = [],
     } = await request.json()
 
     if (!message || typeof message !== 'string') {
@@ -31,6 +32,7 @@ export async function POST(request: NextRequest) {
           imageGenerations: imageGenerations,
           thinking: thinking,
         },
+        ...(attachments.length > 0 && { attachments }),
       })
     } else {
       // Create new chat
@@ -42,6 +44,7 @@ export async function POST(request: NextRequest) {
           thinking: thinking,
         },
         ...(projectId && { projectId }),
+        ...(attachments.length > 0 && { attachments }),
       })
 
       // Rename the new chat to "Main" for new projects

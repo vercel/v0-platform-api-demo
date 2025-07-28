@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreVerticalIcon, TrashIcon, XIcon } from 'lucide-react'
+import { MoreVerticalIcon, TrashIcon, XIcon, PaperclipIcon } from 'lucide-react'
 import SettingsDialog from './settings-dialog'
 import RenameChatDialog from './rename-chat-dialog'
 import { useSettings } from '../../lib/hooks/useSettings'
@@ -31,6 +31,12 @@ import {
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
+interface Attachment {
+  url: string
+  name?: string
+  type?: string
+}
+
 interface PromptComponentProps {
   // Initial state
   initialPrompt?: string
@@ -49,6 +55,7 @@ interface PromptComponentProps {
   onSubmit: (
     prompt: string,
     settings: { modelId: string; imageGenerations: boolean; thinking: boolean },
+    attachments?: Attachment[],
   ) => Promise<void>
 
   // Loading state from parent
@@ -98,6 +105,8 @@ export default function PromptComponent({
   const [isPromptExpanded, setIsPromptExpanded] = useState(initialExpanded)
   const [shouldAnimate, setShouldAnimate] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Global keydown listener to expand prompt on typing and handle escape
   useEffect(() => {
@@ -148,9 +157,10 @@ export default function PromptComponent({
         modelId: settings.model,
         imageGenerations: settings.imageGenerations,
         thinking: settings.thinking,
-      })
-      // Clear the prompt after successful submission
+      }, attachments)
+      // Clear the prompt and attachments after successful submission
       setPrompt('')
+      setAttachments([])
     } catch (err) {
       // Error handling is done by parent component
     }
@@ -159,6 +169,33 @@ export default function PromptComponent({
   const handleRenameChat = async (newName: string) => {
     if (!onRenameChat) return
     await onRenameChat(newName)
+  }
+
+  const handleFileSelect = async (files: FileList) => {
+    const newAttachments: Attachment[] = []
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      
+      // Convert file to data URL
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => resolve(e.target?.result as string)
+        reader.readAsDataURL(file)
+      })
+      
+      newAttachments.push({
+        url: dataUrl,
+        name: file.name,
+        type: file.type,
+      })
+    }
+    
+    setAttachments([...attachments, ...newAttachments])
+  }
+
+  const removeAttachment = (index: number) => {
+    setAttachments(attachments.filter((_, i) => i !== index))
   }
 
   return (
@@ -193,6 +230,21 @@ export default function PromptComponent({
               {/* Input area */}
               <div className="p-3 sm:p-6">
                 <form onSubmit={handleSubmit}>
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*,.pdf,.doc,.docx,.txt"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        handleFileSelect(e.target.files)
+                        e.target.value = '' // Reset input
+                      }
+                    }}
+                  />
+
                   <div className="relative">
                     {/* Input field */}
                     <textarea
@@ -221,7 +273,7 @@ export default function PromptComponent({
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder={placeholder}
                       rows={1}
-                      className="w-full pl-2 sm:pl-2.5 pr-12 sm:pr-16 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden"
+                      className="w-full pl-2 sm:pl-2.5 pr-20 sm:pr-24 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden"
                       disabled={isLoading}
                       style={{
                         minHeight: '44px', // Smaller on mobile
@@ -241,17 +293,21 @@ export default function PromptComponent({
                       }}
                     />
 
+                    {/* Attachment button */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isLoading}
+                      className="absolute right-10 sm:right-12 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                      <PaperclipIcon className="w-4 h-4" />
+                    </button>
+
                     {/* Submit button */}
                     <button
                       type="submit"
                       disabled={isLoading || !prompt.trim()}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-10 sm:h-12 rounded-xl text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
-                      style={{
-                        width: 'fit-content',
-                        minWidth: '40px',
-                        paddingLeft: '8px',
-                        paddingRight: '8px',
-                      }}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
                         <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-gray-600 border-t-transparent"></div>
@@ -272,6 +328,30 @@ export default function PromptComponent({
                       )}
                     </button>
                   </div>
+
+                  {/* Attachments display */}
+                  {attachments.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {attachments.map((attachment, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700"
+                        >
+                          <PaperclipIcon className="w-3 h-3" />
+                          <span className="truncate max-w-32">
+                            {attachment.name || 'Attachment'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeAttachment(index)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <XIcon className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Controls under input */}
                   <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
