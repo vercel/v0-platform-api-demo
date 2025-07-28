@@ -628,8 +628,8 @@ export default function PromptComponent({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* Button group with no gap */}
-                        <div className="flex items-center">
+                        {/* Button group with spacing */}
+                        <div className="flex items-center gap-2">
                           {/* Deploy with Vercel button - Desktop only */}
                           <Button
                             variant="ghost"
