@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface PromptComponentProps {
   // Initial state
@@ -271,8 +272,14 @@ export default function PromptComponent({
                               onChatChange={onChatChange}
                             />
                           </>
+                        ) : currentProjectId && (projects.length === 0 || projectChats.length === 0) ? (
+                          // Show skeleton loading states when dropdowns should be shown but data is loading
+                          <div className="flex items-center gap-2">
+                            <Skeleton className="h-8 w-32" />
+                            <Skeleton className="h-8 w-24" />
+                          </div>
                         ) : currentProjectId ? (
-                          // Placeholder to prevent layout shift
+                          // Placeholder to prevent layout shift when dropdowns are hidden
                           <div className="flex gap-0">
                             <div className="h-8 w-24 bg-transparent"></div>
                             <div className="h-8 w-20 bg-transparent"></div>
