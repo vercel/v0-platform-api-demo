@@ -42,10 +42,8 @@ export default function RateLimitDialog({
           <AlertDialogTitle>
             Rate Limit Reached
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-left space-y-3">
-            <p>
-              You've reached the rate limit. Deploy your own copy of this demo to continue.
-            </p>
+          <AlertDialogDescription className="text-left">
+            You've reached the rate limit. Deploy your own copy of this demo to continue.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">
