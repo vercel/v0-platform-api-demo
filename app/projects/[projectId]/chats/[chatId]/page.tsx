@@ -7,7 +7,7 @@ import PromptComponent from '../../../../components/prompt-component'
 import ApiKeyError from '../../../../components/api-key-error'
 import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
 import { LoadingComponent } from '@/components/loading-component'
-import IFrameComponent from '@/components/iframe-component'
+import { IFrameComponent } from '@/components/iframe-component'
 
 export default function ChatPage() {
   const params = useParams()
@@ -351,14 +351,15 @@ export default function ChatPage() {
               <div class="text-4xl mb-4">✨</div>
               <h1 class="text-xl font-semibold mb-4">App Generated Successfully!</h1>
               <p class="text-gray-600 mb-4">${data.text || 'Your app has been created.'}</p>
-              ${data.url
-            ? `
+              ${
+                data.url
+                  ? `
                 <a href="${data.url}" target="_blank" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
                   View on v0.dev
                 </a>
               `
-            : ''
-          }
+                  : ''
+              }
             </div>
           </body>
           </html>
