@@ -3,7 +3,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, chatId, modelId = 'v0-1.5-md' } = await request.json()
+    const {
+      message,
+      chatId,
+      projectId,
+      modelId = 'v0-1.5-md',
+    } = await request.json()
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -32,7 +37,20 @@ export async function POST(request: NextRequest) {
           modelId: modelId,
           imageGenerations: true,
         },
+        ...(projectId && { projectId }),
       })
+
+      // Rename the new chat to "Main" for new projects
+      if (response.id) {
+        try {
+          await v0.chats.update({
+            chatId: response.id,
+            name: 'Main',
+          })
+        } catch (updateError) {
+          // Don't fail the entire request if renaming fails
+        }
+      }
     }
 
     return NextResponse.json(response)
