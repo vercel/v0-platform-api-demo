@@ -372,7 +372,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="relative min-h-dvh bg-gray-50">
+    <div className="relative min-h-dvh bg-background">
       {/* Preview Area */}
       <div className="absolute inset-0 overflow-hidden">
         {generatedApp ? (

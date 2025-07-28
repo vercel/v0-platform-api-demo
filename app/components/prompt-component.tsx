@@ -63,7 +63,7 @@ function ImagePreview({ src, alt, isVisible, position }: ImagePreviewProps) {
         transform: 'translate(-50%, -100%)',
       }}
     >
-      <div className="bg-white rounded-lg shadow-2xl border border-gray-200 p-2 max-w-xs">
+      <div className="bg-card rounded-lg shadow-2xl border border-border p-2 max-w-xs">
         <img
           src={src}
           alt={alt}
@@ -73,7 +73,7 @@ function ImagePreview({ src, alt, isVisible, position }: ImagePreviewProps) {
             ;(e.target as HTMLElement).closest('[data-preview]')?.remove()
           }}
         />
-        <p className="text-xs text-gray-600 mt-1 truncate">{alt}</p>
+        <p className="text-xs text-muted-foreground mt-1 truncate">{alt}</p>
       </div>
     </div>
   )
@@ -398,10 +398,10 @@ export default function PromptComponent({
               setShouldAnimate(true)
               setIsPromptExpanded(true)
             }}
-            className="text-white bg-black border border-gray-800 p-4 rounded-full shadow-lg transition-all duration-200 cursor-pointer hover:opacity-80"
+            className="text-foreground bg-background border border-border p-4 rounded-full shadow-lg transition-all duration-200 cursor-pointer hover:opacity-80"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-foreground border-t-transparent"></div>
             ) : (
               <img src="/v0-logo.svg" alt="v0" className="w-6 h-6" />
             )}
@@ -416,7 +416,7 @@ export default function PromptComponent({
         >
           {/* Main prompt container */}
           <div className="mx-auto max-w-4xl px-3 sm:px-6 pb-4 sm:pb-8 pointer-events-auto">
-            <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-white/50">
+            <div className="bg-card/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-border/50">
               {/* Input area */}
               <div className="p-3 sm:p-6">
                 <form onSubmit={handleSubmit}>
@@ -444,7 +444,7 @@ export default function PromptComponent({
                         return (
                           <div
                             key={index}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700 relative"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-lg text-sm text-muted-foreground relative"
                             onMouseEnter={(e) => {
                               if (isImage) {
                                 const rect =
@@ -476,7 +476,7 @@ export default function PromptComponent({
                             <button
                               type="button"
                               onClick={() => removeAttachment(index)}
-                              className="text-gray-400 hover:text-gray-600 transition-colors"
+                              className="text-muted-foreground hover:text-foreground transition-colors"
                             >
                               <XIcon className="w-3 h-3" />
                             </button>
@@ -514,7 +514,7 @@ export default function PromptComponent({
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder={placeholder}
                       rows={1}
-                      className={`w-full pl-2 sm:pl-2.5 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-400 font-medium resize-none overflow-hidden ${
+                      className={`w-full pl-2 sm:pl-2.5 py-2 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:ring-0 focus:outline-none text-foreground placeholder-muted-foreground font-medium resize-none overflow-hidden ${
                         speechSupported ? 'pr-24 sm:pr-32' : 'pr-20 sm:pr-24'
                       }`}
                       disabled={isLoading}
@@ -545,7 +545,7 @@ export default function PromptComponent({
                         className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg transition-all duration-200 cursor-pointer disabled:cursor-not-allowed ${
                           isListening
                             ? 'text-red-600 bg-red-50 hover:text-red-700 hover:bg-red-100'
-                            : 'text-gray-600 hover:text-gray-900 disabled:text-gray-300'
+                            : 'text-muted-foreground hover:text-foreground disabled:text-muted-foreground/50'
                         }`}
                         style={{ right: '80px' }}
                       >
@@ -558,7 +558,7 @@ export default function PromptComponent({
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isLoading}
-                      className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg text-gray-600 hover:text-gray-900 disabled:text-gray-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                      className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg text-muted-foreground hover:text-foreground disabled:text-muted-foreground/50 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
                       style={{ right: speechSupported ? '48px' : '48px' }}
                     >
                       <PaperclipIcon className="w-4 h-4" />
@@ -568,10 +568,10 @@ export default function PromptComponent({
                     <button
                       type="submit"
                       disabled={isLoading || !prompt.trim()}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
+                      className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-primary text-primary-foreground hover:bg-primary/80 disabled:bg-muted disabled:text-muted-foreground transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-gray-600 border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-primary-foreground border-t-transparent"></div>
                       ) : (
                         <svg
                           className="w-4 h-4 sm:w-5 sm:h-5"
@@ -634,7 +634,7 @@ export default function PromptComponent({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hidden sm:flex h-8 px-3 text-sm font-medium bg-black text-white hover:bg-gray-800 hover:text-white"
+                            className="hidden sm:flex h-8 px-3 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground"
                             asChild
                           >
                             <a

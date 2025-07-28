@@ -8,7 +8,7 @@
       }
 
       .st1 {
-        fill: #fff;
+        fill: currentColor;
       }
 
       .st2 {

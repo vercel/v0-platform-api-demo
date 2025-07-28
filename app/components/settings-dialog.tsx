@@ -21,6 +21,7 @@ import { DropdownMenuItem as DialogDropdownMenuItem } from '@/components/ui/drop
 import { SettingsIcon, ChevronDownIcon, CheckIcon } from 'lucide-react'
 import { Settings, ModelType, useSettings } from '../../lib/hooks/useSettings'
 
+
 interface SettingsDialogProps {
   trigger?: React.ReactNode
 }
@@ -93,7 +94,7 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
         <div className="space-y-6">
           {/* Model Selection */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-900">Model</h3>
+            <h3 className="text-sm font-medium">Model</h3>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between">
@@ -115,7 +116,7 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
                     <div className="flex items-center justify-between w-full">
                       <div className="flex flex-col">
                         <span className="font-medium">{option.label}</span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           {option.description}
                         </span>
                       </div>
@@ -129,13 +130,15 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
             </DropdownMenu>
           </div>
 
+
+
           {/* Image Generations */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <h3 className="text-sm font-medium text-gray-900">
+              <h3 className="text-sm font-medium">
                 Image Generations
               </h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Enable AI-generated images in your apps
               </p>
             </div>
@@ -153,8 +156,8 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
           {/* Thinking */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <h3 className="text-sm font-medium text-gray-900">Thinking</h3>
-              <p className="text-xs text-gray-500">
+              <h3 className="text-sm font-medium">Thinking</h3>
+              <p className="text-xs text-muted-foreground">
                 Show AI reasoning process during generation
               </p>
             </div>
