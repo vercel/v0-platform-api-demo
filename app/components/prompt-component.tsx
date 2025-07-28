@@ -380,6 +380,53 @@ export default function PromptComponent({
                                   </>
                                 )}
 
+                              {/* Deploy - Only show when we have project context, chat is loaded, and there's a completed version */}
+                              {showDropdowns &&
+                                currentProjectId &&
+                                currentChatId &&
+                                currentChatId !== 'new' &&
+                                chatData &&
+                                chatData.latestVersion &&
+                                chatData.latestVersion.status === 'completed' && (
+                                  <DropdownMenuItem
+                                    onClick={async () => {
+                                      try {
+                                        const response = await fetch('/api/deployments', {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                          },
+                                          body: JSON.stringify({
+                                            projectId: currentProjectId,
+                                            chatId: currentChatId,
+                                            versionId: chatData.latestVersion.id,
+                                          }),
+                                        })
+
+                                        if (!response.ok) {
+                                          const errorData = await response.json()
+                                          throw new Error(errorData.error || 'Failed to deploy')
+                                        }
+
+                                        const deployment = await response.json()
+                                        
+                                        // Show success message or open deployment URL
+                                        if (deployment.webUrl) {
+                                          window.open(deployment.webUrl, '_blank')
+                                        }
+                                      } catch (error) {
+                                        console.error('Deployment failed:', error)
+                                        // You could add a toast notification here
+                                      }
+                                    }}
+                                  >
+                                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    Deploy
+                                  </DropdownMenuItem>
+                                )}
+
                               {/* Delete Chat - Only show when we have project context and chat is loaded */}
                               {showDropdowns &&
                                 currentProjectId &&
@@ -388,6 +435,7 @@ export default function PromptComponent({
                                 onDeleteChat &&
                                 chatData && (
                                   <>
+                                    <DropdownMenuSeparator />
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <DropdownMenuItem
