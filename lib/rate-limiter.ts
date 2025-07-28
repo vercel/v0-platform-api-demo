@@ -54,50 +54,10 @@ export async function associateProjectWithIP(projectId: string, userIP: string):
   if (!redis) return // Skip if Redis is not available
   
   try {
-    // Store both directions of the mapping
+    // Store only user_projects mapping
     await redis.sadd(`user_projects:${userIP}`, projectId)
-    await redis.set(`project_owner:${projectId}`, userIP)
   } catch (error) {
     console.warn('Failed to associate project with IP:', error)
-  }
-}
-
-// Function to associate an IP with a chat
-export async function associateChatWithIP(chatId: string, userIP: string): Promise<void> {
-  if (!redis) return // Skip if Redis is not available
-  
-  try {
-    // Store both directions of the mapping
-    await redis.sadd(`user_chats:${userIP}`, chatId)
-    await redis.set(`chat_owner:${chatId}`, userIP)
-  } catch (error) {
-    console.warn('Failed to associate chat with IP:', error)
-  }
-}
-
-// Function to check if a user owns a project
-export async function checkProjectOwnership(projectId: string, userIP: string): Promise<boolean> {
-  if (!redis) return true // Allow access if Redis is not available
-  
-  try {
-    const owner = await redis.get(`project_owner:${projectId}`)
-    return owner === userIP
-  } catch (error) {
-    console.warn('Failed to check project ownership:', error)
-    return true // Allow access on error
-  }
-}
-
-// Function to check if a user owns a chat
-export async function checkChatOwnership(chatId: string, userIP: string): Promise<boolean> {
-  if (!redis) return true // Allow access if Redis is not available
-  
-  try {
-    const owner = await redis.get(`chat_owner:${chatId}`)
-    return owner === userIP
-  } catch (error) {
-    console.warn('Failed to check chat ownership:', error)
-    return true // Allow access on error
   }
 }
 
@@ -111,53 +71,6 @@ export async function getUserProjects(userIP: string): Promise<string[]> {
   } catch (error) {
     console.warn('Failed to get user projects:', error)
     return []
-  }
-}
-
-// Function to get user's chats
-export async function getUserChats(userIP: string): Promise<string[]> {
-  if (!redis) return [] // Return empty if Redis is not available
-  
-  try {
-    const chatIds = await redis.smembers(`user_chats:${userIP}`)
-    return chatIds as string[]
-  } catch (error) {
-    console.warn('Failed to get user chats:', error)
-    return []
-  }
-}
-
-// Migration function: associate unowned projects with the accessing user
-export async function migrateProjectOwnership(projectId: string, userIP: string): Promise<void> {
-  if (!redis) return // Skip if Redis is not available
-  
-  try {
-    // Check if project already has an owner
-    const existingOwner = await redis.get(`project_owner:${projectId}`)
-    
-    // If no owner exists, associate it with this user
-    if (!existingOwner) {
-      await associateProjectWithIP(projectId, userIP)
-    }
-  } catch (error) {
-    console.warn('Failed to migrate project ownership:', error)
-  }
-}
-
-// Migration function: associate unowned chats with the accessing user
-export async function migrateChatOwnership(chatId: string, userIP: string): Promise<void> {
-  if (!redis) return // Skip if Redis is not available
-  
-  try {
-    // Check if chat already has an owner
-    const existingOwner = await redis.get(`chat_owner:${chatId}`)
-    
-    // If no owner exists, associate it with this user
-    if (!existingOwner) {
-      await associateChatWithIP(chatId, userIP)
-    }
-  } catch (error) {
-    console.warn('Failed to migrate chat ownership:', error)
   }
 }
 

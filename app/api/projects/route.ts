@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { v0 } from 'v0-sdk'
-import { getUserIP, getUserProjects, associateProjectWithIP, migrateProjectOwnership } from '@/lib/rate-limiter'
+import { getUserIP, getUserProjects, associateProjectWithIP } from '@/lib/rate-limiter'
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,22 +13,6 @@ export async function GET(request: NextRequest) {
     
     // Get user's project IDs from Redis
     const userProjectIds = await getUserProjects(userIP)
-    
-    // For migration: if user has no projects but there are projects available,
-    // associate all existing projects with this user (first-come, first-served)
-    if (userProjectIds.length === 0 && allProjects.length > 0) {
-      for (const project of allProjects) {
-        await migrateProjectOwnership(project.id, userIP)
-      }
-      
-      // Get updated user projects after migration
-      const updatedUserProjectIds = await getUserProjects(userIP)
-      const userProjects = allProjects.filter((project: any) => 
-        updatedUserProjectIds.includes(project.id)
-      )
-      
-      return NextResponse.json({ data: userProjects })
-    }
     
     // Filter projects to only include those owned by this user
     const userProjects = allProjects.filter((project: any) => 
