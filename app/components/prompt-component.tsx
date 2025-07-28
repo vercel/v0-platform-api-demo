@@ -117,6 +117,69 @@ export default function PromptComponent({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const recognitionRef = useRef<any>(null)
 
+  // SessionStorage keys for persistence
+  const PROMPT_STORAGE_KEY = 'v0-draft-prompt'
+  const ATTACHMENTS_STORAGE_KEY = 'v0-draft-attachments'
+
+  // Load saved prompt and attachments from sessionStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedPrompt = sessionStorage.getItem(PROMPT_STORAGE_KEY)
+        const savedAttachments = sessionStorage.getItem(ATTACHMENTS_STORAGE_KEY)
+        
+        if (savedPrompt && !initialPrompt) {
+          setPrompt(savedPrompt)
+        }
+        
+        if (savedAttachments) {
+          const parsedAttachments = JSON.parse(savedAttachments)
+          setAttachments(parsedAttachments)
+        }
+      } catch (error) {
+        // Silently handle sessionStorage errors
+        console.warn('Failed to load draft from sessionStorage:', error)
+      }
+    }
+  }, [initialPrompt])
+
+  // Save prompt to sessionStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && prompt) {
+      try {
+        sessionStorage.setItem(PROMPT_STORAGE_KEY, prompt)
+      } catch (error) {
+        // Silently handle sessionStorage errors
+        console.warn('Failed to save prompt to sessionStorage:', error)
+      }
+    }
+  }, [prompt])
+
+  // Save attachments to sessionStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify(attachments))
+      } catch (error) {
+        // Silently handle sessionStorage errors
+        console.warn('Failed to save attachments to sessionStorage:', error)
+      }
+    }
+  }, [attachments])
+
+  // Clear sessionStorage function
+  const clearDraft = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem(PROMPT_STORAGE_KEY)
+        sessionStorage.removeItem(ATTACHMENTS_STORAGE_KEY)
+      } catch (error) {
+        // Silently handle sessionStorage errors
+        console.warn('Failed to clear draft from sessionStorage:', error)
+      }
+    }
+  }
+
   // Check for speech recognition support
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -234,6 +297,8 @@ export default function PromptComponent({
       // Clear the prompt and attachments after successful submission
       setPrompt('')
       setAttachments([])
+      // Clear sessionStorage draft
+      clearDraft()
     } catch (err) {
       // Error handling is done by parent component
     }
