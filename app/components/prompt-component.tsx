@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MoreVerticalIcon, TrashIcon } from 'lucide-react'
+import SettingsDialog from './settings-dialog'
+import { useSettings } from '../../lib/hooks/useSettings'
 import {
   ProjectDropdown,
   ChatDropdown,
@@ -41,7 +43,7 @@ interface PromptComponentProps {
   chatData?: any
 
   // Submit handler - different behavior for homepage vs chat pages
-  onSubmit: (prompt: string) => Promise<void>
+  onSubmit: (prompt: string, modelId?: string) => Promise<void>
 
   // Loading state from parent
   isLoading: boolean
@@ -81,6 +83,7 @@ export default function PromptComponent({
   onDeleteChat,
 }: PromptComponentProps) {
   const router = useRouter()
+  const { settings } = useSettings()
   const [prompt, setPrompt] = useState(initialPrompt)
   const [isPromptExpanded, setIsPromptExpanded] = useState(initialExpanded)
   const [shouldAnimate, setShouldAnimate] = useState(false)
@@ -127,7 +130,7 @@ export default function PromptComponent({
     setShouldAnimate(false) // Reset animation state
 
     try {
-      await onSubmit(prompt.trim())
+      await onSubmit(prompt.trim(), settings.model)
       // Clear the prompt after successful submission
       setPrompt('')
     } catch (err) {
@@ -287,7 +290,7 @@ export default function PromptComponent({
                       </a>
 
                       {/* More Options Menu */}
-                      {showDropdowns && currentProjectId && currentChatId && currentChatId !== 'new' && onDeleteChat && (
+                      {showDropdowns && currentProjectId && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -299,6 +302,9 @@ export default function PromptComponent({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" side="top">
+                            {/* Settings */}
+                            <SettingsDialog />
+
                             {/* Delete Chat */}
                             {currentChatId &&
                               currentChatId !== 'new' &&

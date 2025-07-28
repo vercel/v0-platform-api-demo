@@ -124,7 +124,7 @@ export default function HomePage() {
     setSelectedChatId(newChatId)
   }
 
-  const handleSubmit = async (prompt: string) => {
+  const handleSubmit = async (prompt: string, modelId?: string) => {
     setIsLoading(true)
     setError(null)
 
@@ -136,6 +136,7 @@ export default function HomePage() {
         },
         body: JSON.stringify({
           message: prompt,
+          modelId,
         }),
       })
 

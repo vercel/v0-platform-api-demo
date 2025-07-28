@@ -238,7 +238,7 @@ export default function ChatPage() {
     }
   }
 
-  const handleSubmit = async (prompt: string) => {
+  const handleSubmit = async (prompt: string, modelId?: string) => {
     setIsLoading(true)
     setError(null)
 
@@ -252,6 +252,7 @@ export default function ChatPage() {
           message: prompt,
           chatId: selectedChatId !== 'new' ? selectedChatId : undefined,
           projectId: projectId, // Always use the current project from URL
+          modelId,
         }),
       })
 

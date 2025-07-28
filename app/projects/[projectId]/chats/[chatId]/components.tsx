@@ -59,7 +59,7 @@ export function ProjectDropdown({
   useEffect(() => {
     const project = projects.find((p) => p.id === currentProjectId)
     setCurrentProject(project || null)
-    
+
     // If projects array length changed and dropdown was open, keep it open
     if (prevProjectsLengthRef.current !== projects.length && open) {
       // Force re-render to maintain open state
