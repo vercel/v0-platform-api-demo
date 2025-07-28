@@ -145,7 +145,7 @@ export default function PromptComponent({
               setShouldAnimate(true)
               setIsPromptExpanded(true)
             }}
-            className="text-white bg-black border border-gray-500 p-4 rounded-full shadow-lg transition-all duration-200 cursor-pointer hover:opacity-80"
+            className="text-white bg-black border border-gray-800 p-4 rounded-full shadow-lg transition-all duration-200 cursor-pointer hover:opacity-80"
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
@@ -287,7 +287,7 @@ export default function PromptComponent({
                       </a>
 
                       {/* More Options Menu */}
-                      {showDropdowns && currentProjectId && (
+                      {showDropdowns && currentProjectId && currentChatId && currentChatId !== 'new' && onDeleteChat && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button

@@ -19,11 +19,19 @@ export async function POST(request: NextRequest) {
       response = await v0.chats.sendMessage({
         chatId: chatId,
         message: message.trim(),
+        modelConfiguration: {
+          modelId: 'v0-1.5-md',
+          imageGenerations: true,
+        },
       })
     } else {
       // Create new chat
       response = await v0.chats.create({
         message: message.trim(),
+        modelConfiguration: {
+          modelId: 'v0-1.5-md',
+          imageGenerations: true,
+        },
       })
     }
 

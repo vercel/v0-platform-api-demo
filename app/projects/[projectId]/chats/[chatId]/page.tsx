@@ -342,14 +342,12 @@ export default function ChatPage() {
               <iframe
                 src={generatedApp}
                 className="w-full h-full border-0"
-                title="Generated App Preview"
                 sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups allow-top-navigation-by-user-activation allow-pointer-lock"
               />
             ) : (
               <iframe
                 srcDoc={generatedApp}
                 className="w-full h-full border-0"
-                title="Generated App Preview"
                 sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-pointer-lock"
               />
             )}
