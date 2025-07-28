@@ -68,7 +68,7 @@ function ImagePreview({ src, alt, isVisible, position }: ImagePreviewProps) {
         <img
           src={src}
           alt={alt}
-          className="max-w-full max-h-48 object-contain rounded"
+          className="w-full h-48 object-cover object-center rounded"
           onError={(e) => {
             // Hide preview if image fails to load
             ;(e.target as HTMLElement).closest('[data-preview]')?.remove()
@@ -162,6 +162,8 @@ export default function PromptComponent({
     alt: '',
     position: { x: 0, y: 0 },
   })
+  const [isDragging, setIsDragging] = useState(false)
+  const [isOverPrompt, setIsOverPrompt] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const recognitionRef = useRef<any>(null)
 
@@ -300,6 +302,12 @@ export default function PromptComponent({
 
       // Handle escape key
       if (e.key === 'Escape') {
+        // Clear drag state if currently dragging
+        if (isDragging) {
+          setIsDragging(false)
+          setIsOverPrompt(false)
+        }
+        
         if (isPromptExpanded) {
           // If prompt is expanded, collapse it
           setIsPromptExpanded(false)
@@ -327,7 +335,31 @@ export default function PromptComponent({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isPromptExpanded, isLoading, router, currentProjectId, isDialogOpen])
+  }, [isPromptExpanded, isLoading, router, currentProjectId, isDialogOpen, isDragging])
+
+  // Listen for drag operations being cancelled (e.g. by pressing Escape)
+  useEffect(() => {
+    if (!isDragging) return
+
+    const handleGlobalDragEnd = () => {
+      setIsDragging(false)
+      setIsOverPrompt(false)
+    }
+
+    const handleMouseUp = () => {
+      // Small delay to allow drop events to fire first
+      setTimeout(handleGlobalDragEnd, 50)
+    }
+
+    // Listen for various ways the drag can end
+    document.addEventListener('dragend', handleGlobalDragEnd)
+    document.addEventListener('mouseup', handleMouseUp)
+    
+    return () => {
+      document.removeEventListener('dragend', handleGlobalDragEnd)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -391,7 +423,75 @@ export default function PromptComponent({
   }
 
   const removeAttachment = (index: number) => {
+    const attachmentToRemove = attachments[index]
+    
+    // Clear preview if it's showing the attachment being removed
+    if (previewState.isVisible && previewState.src === attachmentToRemove?.url) {
+      setPreviewState(prev => ({
+        ...prev,
+        isVisible: false,
+      }))
+    }
+    
     setAttachments(attachments.filter((_, i) => i !== index))
+  }
+
+  // Drag and drop handlers
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Check if we have files being dragged
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true)
+      
+      // Check if entering the prompt container specifically
+      const target = e.currentTarget as HTMLElement
+      if (target.dataset.dragContainer === 'prompt') {
+        setIsOverPrompt(true)
+      }
+    }
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // For prompt container, check if leaving to go to overlay
+    const target = e.currentTarget as HTMLElement
+    if (target.dataset.dragContainer === 'prompt') {
+      const rect = target.getBoundingClientRect()
+      const x = e.clientX
+      const y = e.clientY
+      
+      if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+        setIsOverPrompt(false)
+      }
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    setIsOverPrompt(false)
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await handleFileSelect(e.dataTransfer.files)
+      e.dataTransfer.clearData()
+    }
+  }
+
+  const handleDragEnd = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    setIsOverPrompt(false)
   }
 
   return (
@@ -415,6 +515,29 @@ export default function PromptComponent({
         </div>
       )}
 
+      {/* Full-screen drag overlay */}
+      {isDragging && (
+        <div
+          className="fixed inset-0 z-20 pointer-events-auto"
+          onDragEnter={handleDragEnter}
+          onDragLeave={(e) => {
+            // Only clear drag state if leaving the entire screen
+            if (e.clientX === 0 && e.clientY === 0) {
+              setIsDragging(false)
+              setIsOverPrompt(false)
+            }
+          }}
+          onDragOver={handleDragOver}
+          onDrop={(e) => {
+            // Prevent drops outside the prompt area
+            e.preventDefault()
+            e.stopPropagation()
+            setIsDragging(false)
+            setIsOverPrompt(false)
+          }}
+        />
+      )}
+
       {/* Premium Prompt Area */}
       {isPromptExpanded && (
         <div
@@ -422,7 +545,29 @@ export default function PromptComponent({
         >
           {/* Main prompt container */}
           <div className="mx-auto max-w-4xl px-3 sm:px-6 pb-4 sm:pb-8 pointer-events-auto">
-            <div className="bg-card/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-border/50">
+            <div 
+              className={`relative bg-card/80 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border transition-all duration-200 ${
+                isDragging 
+                  ? 'border-primary border-2 bg-primary/5' 
+                  : 'border-border/50'
+              }`}
+              data-drag-container="prompt"
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
+            >
+              {/* Drag overlay */}
+              {isDragging && isOverPrompt && (
+                <div className="absolute inset-0 bg-primary/5 z-10 flex items-center justify-center rounded-2xl">
+                  <div className="flex items-center gap-2 bg-primary/10 backdrop-blur-sm px-3 py-2 rounded-lg border border-primary/20">
+                    <PaperclipIcon className="w-4 h-4 text-primary" />
+                    <span className="text-primary font-medium text-sm">Drop files</span>
+                  </div>
+                </div>
+              )}
+
               {/* Input area */}
               <div className="p-3 sm:p-6">
                 <form onSubmit={handleSubmit}>
