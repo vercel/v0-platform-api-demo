@@ -9,9 +9,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
-import { SettingsIcon } from 'lucide-react'
+import { DropdownMenuItem as DialogDropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { SettingsIcon, ChevronDownIcon, CheckIcon } from 'lucide-react'
 import { Settings, ModelType, useSettings } from '../../lib/hooks/useSettings'
 
 interface SettingsDialogProps {
@@ -41,41 +47,31 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
     setOpen(false)
   }
 
-  const ModelOption = ({
-    value,
-    label,
-    description,
-  }: {
-    value: ModelType
-    label: string
-    description: string
-  }) => (
-    <label className="flex items-start space-x-3 p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-      <input
-        type="radio"
-        name="model"
-        value={value}
-        checked={tempSettings.model === value}
-        onChange={(e) =>
-          setTempSettings({
-            ...tempSettings,
-            model: e.target.value as ModelType,
-          })
-        }
-        className="mt-1"
-      />
-      <div className="flex-1">
-        <div className="font-medium text-sm">{label}</div>
-        <div className="text-xs text-gray-500">{description}</div>
-      </div>
-    </label>
-  )
+  const modelOptions = [
+    {
+      value: 'v0-1.5-sm' as ModelType,
+      label: 'v0-1.5-sm',
+      description: 'Fast and efficient for simple apps',
+    },
+    {
+      value: 'v0-1.5-md' as ModelType,
+      label: 'v0-1.5-md',
+      description: 'Balanced performance and quality (default)',
+    },
+    {
+      value: 'v0-1.5-lg' as ModelType,
+      label: 'v0-1.5-lg',
+      description: 'Best quality for complex applications',
+    },
+  ]
+
+  const currentModel = modelOptions.find(option => option.value === tempSettings.model)
 
   const defaultTrigger = (
-    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+    <DialogDropdownMenuItem onSelect={(e) => e.preventDefault()}>
       <SettingsIcon className="mr-2 h-4 w-4" />
       Settings
-    </DropdownMenuItem>
+    </DialogDropdownMenuItem>
   )
 
   return (
@@ -95,23 +91,37 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
           {/* Model Selection */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900">Model</h3>
-            <div className="space-y-2">
-              <ModelOption
-                value="v0-1.5-sm"
-                label="v0-1.5-sm"
-                description="Fast and efficient for simple apps"
-              />
-              <ModelOption
-                value="v0-1.5-md"
-                label="v0-1.5-md"
-                description="Balanced performance and quality (default)"
-              />
-              <ModelOption
-                value="v0-1.5-lg"
-                label="v0-1.5-lg"
-                description="Best quality for complex applications"
-              />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  <span className="font-medium">{currentModel?.label}</span>
+                  <ChevronDownIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[400px]">
+                {modelOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    onClick={() =>
+                      setTempSettings({
+                        ...tempSettings,
+                        model: option.value,
+                      })
+                    }
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{option.label}</span>
+                        <span className="text-xs text-gray-500">{option.description}</span>
+                      </div>
+                      {tempSettings.model === option.value && (
+                        <CheckIcon className="h-4 w-4 text-primary" />
+                      )}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
