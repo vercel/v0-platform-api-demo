@@ -630,6 +630,26 @@ export default function PromptComponent({
                       <div className="flex items-center gap-3">
                         {/* Button group with no gap */}
                         <div className="flex items-center">
+                          {/* Deploy with Vercel button - Desktop only */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="hidden sm:flex h-8 px-3 text-sm font-medium bg-black text-white hover:bg-gray-800"
+                            asChild
+                          >
+                            <a
+                              href="https://vercel.com/new/clone?demo-description=A%20Next.js%20application%20demonstrating%20the%20v0%20Platform%20API&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F28EABpFanXbK3bENHYGPe7%2F2b37a0cf17f3f8f9a19ee23e539b62eb%2Fscreenshot.png&demo-title=v0%20Platform%20API%20Demo&demo-url=https%3A%2F%2Fv0-centered-text-om.vercel.sh%2F&from=templates&project-name=v0%20Platform%20API%20Demo&repository-name=v0-platform-api-demo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fv0-platform-api-demo&skippable-integrations=1"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2"
+                            >
+                              <svg className="h-4 w-4" viewBox="0 0 76 76" fill="none">
+                                <path d="M38 1L74 74H2L38 1Z" fill="currentColor"/>
+                              </svg>
+                              Deploy with Vercel
+                            </a>
+                          </Button>
+
                           {/* Single More Options Menu - Always show */}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -642,6 +662,22 @@ export default function PromptComponent({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" side="top">
+                              {/* Deploy with Vercel - Mobile only */}
+                              <DropdownMenuItem asChild className="sm:hidden">
+                                <a
+                                  href="https://vercel.com/new/clone?demo-description=A%20Next.js%20application%20demonstrating%20the%20v0%20Platform%20API&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F28EABpFanXbK3bENHYGPe7%2F2b37a0cf17f3f8f9a19ee23e539b62eb%2Fscreenshot.png&demo-title=v0%20Platform%20API%20Demo&demo-url=https%3A%2F%2Fv0-centered-text-om.vercel.sh%2F&from=templates&project-name=v0%20Platform%20API%20Demo&repository-name=v0-platform-api-demo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fv0-platform-api-demo&skippable-integrations=1"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center"
+                                >
+                                  <svg className="mr-2 h-4 w-4" viewBox="0 0 76 76" fill="none">
+                                    <path d="M38 1L74 74H2L38 1Z" fill="currentColor"/>
+                                  </svg>
+                                  Deploy with Vercel
+                                </a>
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator className="sm:hidden" />
+
                               {/* Settings - Always available */}
                               <SettingsDialog />
 
