@@ -634,7 +634,7 @@ export default function PromptComponent({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hidden sm:flex h-8 px-3 text-sm font-medium bg-black text-white hover:bg-gray-800"
+                            className="hidden sm:flex h-8 px-3 text-sm font-medium bg-black text-white hover:bg-gray-800 hover:text-white"
                             asChild
                           >
                             <a
