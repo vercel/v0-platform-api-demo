@@ -304,6 +304,11 @@ export default function ChatPage() {
           return
         }
 
+        // Check for rate limit error
+        if (response.status === 429 && errorData.error === 'RATE_LIMIT_EXCEEDED') {
+          throw new Error(errorData.message || 'Rate limit exceeded. Please try again later.')
+        }
+
         throw new Error(errorData.error || 'Failed to generate app')
       }
 

@@ -15,9 +15,12 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
    Create a `.env.local` file in the root directory:
    ```env
    V0_API_KEY=your_api_key_here
+   UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url
+   UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token
    ```
    
-   Get your API key from [v0.dev/settings](https://v0.dev/settings)
+   - Get your v0 API key from [v0.dev/settings](https://v0.dev/settings)
+   - Get your Upstash Redis credentials from [upstash.com](https://upstash.com) (required for rate limiting)
 
 3. **Run development server:**
    ```bash
@@ -35,6 +38,7 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
 - **One-Click Deployment**: Deploy generated apps directly to Vercel
 - **File Attachments**: Upload images and files to enhance your prompts
 - **Voice Input**: Use speech-to-text for hands-free prompt creation
+- **Rate Limiting**: Built-in rate limiting (3 generations per 12 hours) to prevent abuse
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Session Caching**: Improved performance with intelligent caching of projects and chats
 
@@ -57,8 +61,21 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
 - **Styling:** Tailwind CSS 4
 - **UI Components:** Radix UI primitives with custom styling
 - **API Integration:** v0-sdk for Platform API communication
+- **Rate Limiting:** Upstash Redis with sliding window algorithm
 - **Fonts:** Geist Sans and Geist Mono via next/font
 - **Build Tool:** Turbopack for fast development
+
+## Rate Limiting
+
+This application implements rate limiting to prevent abuse and ensure fair usage:
+
+- **Limit:** 3 new chat generations per 12 hours per IP address
+- **Scope:** Only applies to new chat creation (`v0.chats.create()`)
+- **Existing chats:** Continuing conversations with `v0.chats.sendMessage()` is unlimited
+- **Implementation:** Uses Upstash Redis with a sliding window algorithm
+- **Fallback:** If rate limiting service is unavailable, requests are allowed (fail-open strategy)
+
+When the rate limit is exceeded, users receive a 429 status code with information about when they can try again.
 
 ## Project Structure
 
@@ -89,6 +106,8 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `V0_API_KEY` | Yes | Your v0 Platform API key from [v0.dev/settings](https://v0.dev/settings) |
+| `UPSTASH_REDIS_REST_URL` | Yes | Upstash Redis REST URL for rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Yes | Upstash Redis REST token for rate limiting |
 
 ## Development Commands
 

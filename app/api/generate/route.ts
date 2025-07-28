@@ -1,5 +1,6 @@
 import { v0 } from 'v0-sdk'
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit, getUserIdentifier } from '@/lib/rate-limiter'
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,6 +36,31 @@ export async function POST(request: NextRequest) {
         ...(attachments.length > 0 && { attachments }),
       })
     } else {
+      // Check rate limit for new chat creation (generation)
+      const userIdentifier = getUserIdentifier(request)
+      const rateLimitResult = await checkRateLimit(userIdentifier)
+      
+      if (!rateLimitResult.success) {
+        const resetTime = rateLimitResult.resetTime.toLocaleString()
+        return NextResponse.json(
+          { 
+            error: 'RATE_LIMIT_EXCEEDED',
+            message: `You've reached the limit of 3 generations per 12 hours. Please try again after ${resetTime}.`,
+            limit: rateLimitResult.limit,
+            remaining: rateLimitResult.remaining,
+            resetTime: rateLimitResult.resetTime.toISOString()
+          },
+          { 
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+              'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+              'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+            }
+          }
+        )
+      }
+
       // Create new chat
       response = await v0.chats.create({
         message: message.trim(),
