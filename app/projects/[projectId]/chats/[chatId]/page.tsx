@@ -216,6 +216,38 @@ export default function ChatPage() {
     }
   }
 
+  const handleRenameChat = async (newName: string) => {
+    try {
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newName }),
+      })
+
+      if (response.ok) {
+        // Update local chat data
+        setChatData((prev: any) => (prev ? { ...prev, name: newName } : prev))
+
+        // Clear cached data for this project to force refresh
+        try {
+          sessionStorage.removeItem(`project-chats-${projectId}`)
+        } catch (err) {
+          // Silently handle cache clearing errors
+        }
+
+        // Reload project chats to update the dropdown
+        loadProjectChats()
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to rename chat')
+      }
+    } catch (error) {
+      throw error // Re-throw to let dialog handle the error display
+    }
+  }
+
   const loadChatData = async () => {
     try {
       const response = await fetch(`/api/chats/${encodeURIComponent(chatId)}`, {
@@ -374,6 +406,7 @@ export default function ChatPage() {
         onProjectChange={handleProjectChange}
         onChatChange={handleChatChange}
         onDeleteChat={handleDeleteChat}
+        onRenameChat={handleRenameChat}
       />
     </div>
   )

@@ -55,18 +55,18 @@ interface ChatDropdownProps {
 // Hook to detect mobile screen size
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false)
-  
+
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768) // md breakpoint
     }
-    
+
     checkIsMobile()
     window.addEventListener('resize', checkIsMobile)
-    
+
     return () => window.removeEventListener('resize', checkIsMobile)
   }, [])
-  
+
   return isMobile
 }
 
@@ -167,16 +167,12 @@ export function ProjectDropdown({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={handleOpenChange}>
-        <DrawerTrigger asChild>
-          {triggerButton}
-        </DrawerTrigger>
+        <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Select Project</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-4">
-            {commandContent}
-          </div>
+          <div className="px-4 pb-4">{commandContent}</div>
         </DrawerContent>
       </Drawer>
     )
@@ -184,9 +180,7 @@ export function ProjectDropdown({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        {triggerButton}
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         {commandContent}
       </PopoverContent>
@@ -339,9 +333,7 @@ export function ChatDropdown({
               )}
             >
               <span>{getChatTitle(chat)}</span>
-              {chat.id === currentChatId && (
-                <CheckIcon className="h-4 w-4" />
-              )}
+              {chat.id === currentChatId && <CheckIcon className="h-4 w-4" />}
             </CommandItem>
           ))}
         </CommandGroup>
@@ -352,16 +344,12 @@ export function ChatDropdown({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={handleOpenChange}>
-        <DrawerTrigger asChild>
-          {triggerButton}
-        </DrawerTrigger>
+        <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Select Chat</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-4">
-            {commandContent}
-          </div>
+          <div className="px-4 pb-4">{commandContent}</div>
         </DrawerContent>
       </Drawer>
     )
@@ -369,9 +357,7 @@ export function ChatDropdown({
 
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        {triggerButton}
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         {commandContent}
       </PopoverContent>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { MoreVerticalIcon, TrashIcon, XIcon } from 'lucide-react'
 import SettingsDialog from './settings-dialog'
+import RenameChatDialog from './rename-chat-dialog'
 import { useSettings } from '../../lib/hooks/useSettings'
 import {
   ProjectDropdown,
@@ -65,6 +66,9 @@ interface PromptComponentProps {
 
   // Delete callbacks
   onDeleteChat?: () => Promise<void>
+
+  // Rename chat callback
+  onRenameChat?: (newName: string) => Promise<void>
 }
 
 export default function PromptComponent({
@@ -83,16 +87,21 @@ export default function PromptComponent({
   onProjectChange,
   onChatChange,
   onDeleteChat,
+  onRenameChat,
 }: PromptComponentProps) {
   const router = useRouter()
   const { settings } = useSettings()
   const [prompt, setPrompt] = useState(initialPrompt)
   const [isPromptExpanded, setIsPromptExpanded] = useState(initialExpanded)
   const [shouldAnimate, setShouldAnimate] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Global keydown listener to expand prompt on typing and handle escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle keyboard events if any dialog is open
+      if (isDialogOpen) return
+
       // Handle escape key
       if (e.key === 'Escape') {
         if (isPromptExpanded) {
@@ -122,7 +131,7 @@ export default function PromptComponent({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isPromptExpanded, isLoading, router, currentProjectId])
+  }, [isPromptExpanded, isLoading, router, currentProjectId, isDialogOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,6 +147,11 @@ export default function PromptComponent({
     } catch (err) {
       // Error handling is done by parent component
     }
+  }
+
+  const handleRenameChat = async (newName: string) => {
+    if (!onRenameChat) return
+    await onRenameChat(newName)
   }
 
   return (
@@ -272,7 +286,9 @@ export default function PromptComponent({
                               onChatChange={onChatChange}
                             />
                           </>
-                        ) : currentProjectId && (projects.length === 0 || projectChats.length === 0) ? (
+                        ) : currentProjectId &&
+                          (projects.length === 0 ||
+                            projectChats.length === 0) ? (
                           // Show skeleton loading states when dropdowns should be shown but data is loading
                           <div className="flex items-center gap-2">
                             <Skeleton className="h-8 w-32" />
@@ -323,21 +339,51 @@ export default function PromptComponent({
                                   rel="noopener noreferrer"
                                   className="flex items-center"
                                 >
-                                  <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  <svg
+                                    className="mr-2 h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                    />
                                   </svg>
                                   View on v0.dev
                                 </a>
                               </DropdownMenuItem>
+
+                              {/* Rename Chat - Only show when we have project context and chat is loaded */}
+                              {showDropdowns &&
+                                currentProjectId &&
+                                currentChatId &&
+                                currentChatId !== 'new' &&
+                                onRenameChat &&
+                                chatData && (
+                                  <>
+                                    <DropdownMenuSeparator />
+                                    <RenameChatDialog
+                                      chatId={currentChatId}
+                                      currentName={
+                                        chatData.name || 'Untitled Chat'
+                                      }
+                                      onRename={handleRenameChat}
+                                      onOpenChange={setIsDialogOpen}
+                                    />
+                                  </>
+                                )}
 
                               {/* Delete Chat - Only show when we have project context and chat is loaded */}
                               {showDropdowns &&
                                 currentProjectId &&
                                 currentChatId &&
                                 currentChatId !== 'new' &&
-                                onDeleteChat && (
+                                onDeleteChat &&
+                                chatData && (
                                   <>
-                                    <DropdownMenuSeparator />
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <DropdownMenuItem
