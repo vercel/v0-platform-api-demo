@@ -255,7 +255,7 @@ export default function PromptComponent({
                   {/* Controls under input */}
                   <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
                     <div className="flex items-center justify-between sm:flex-1">
-                      <div className="flex items-center gap-0 flex-1">
+                      <div className="flex items-center gap-0 flex-1 max-w-[300px] sm:max-w-[400px]">
                         {/* Project and Chat Dropdowns */}
                         {showDropdowns && currentProjectId ? (
                           <>

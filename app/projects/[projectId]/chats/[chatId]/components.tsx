@@ -116,16 +116,16 @@ export function ProjectDropdown({
     <Button
       variant="ghost"
       size="sm"
-      className="gap-1 justify-start"
+      className="gap-1 justify-start max-w-[150px] sm:max-w-[200px]"
       role="combobox"
       aria-expanded={open}
     >
-      <span className="text-sm text-gray-600">
+      <span className="text-sm text-gray-600 truncate">
         {currentProjectId === 'new'
           ? 'New Project'
           : currentProject?.name || 'Project'}
       </span>
-      <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+      <ChevronDownIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
     </Button>
   )
 
@@ -290,14 +290,14 @@ export function ChatDropdown({
     <Button
       variant="ghost"
       size="sm"
-      className="gap-1 justify-start"
+      className="gap-1 justify-start max-w-[120px] sm:max-w-[160px]"
       role="combobox"
       aria-expanded={open}
     >
-      <span className="text-sm text-gray-600">
+      <span className="text-sm text-gray-600 truncate">
         {currentChat ? getChatTitle(currentChat) : 'New Chat'}
       </span>
-      <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+      <ChevronDownIcon className="h-4 w-4 text-gray-400 flex-shrink-0" />
     </Button>
   )
 
