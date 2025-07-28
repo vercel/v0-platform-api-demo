@@ -15,6 +15,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'v0 Platform API Demo',
   description: 'A demo of the v0 Platform API',
+  openGraph: {
+    title: 'v0 Platform API Demo',
+    description: 'A demo of the v0 Platform API',
+    images: ['/og-image.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'v0 Platform API Demo',
+    description: 'A demo of the v0 Platform API',
+    images: ['/og-image.png'],
+  },
 }
 
 export default function RootLayout({
