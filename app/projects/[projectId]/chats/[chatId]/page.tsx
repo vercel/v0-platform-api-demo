@@ -295,7 +295,7 @@ export default function ChatPage() {
           <head>
             <script src="https://cdn.tailwindcss.com"></script>
           </head>
-          <body class="p-8 bg-gray-50 flex items-center justify-center min-h-screen">
+          <body class="p-8 bg-gray-50 flex items-center justify-center min-h-dvh">
             <div class="max-w-md mx-auto text-center">
               <div class="text-4xl mb-4">✨</div>
               <h1 class="text-xl font-semibold mb-4">App Generated Successfully!</h1>
@@ -333,7 +333,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gray-50">
+    <div className="relative min-h-dvh bg-gray-50">
       {/* Preview Area */}
       <div className="absolute inset-0 overflow-hidden">
         {generatedApp ? (

@@ -179,7 +179,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gray-50">
+    <div className="relative min-h-dvh bg-gray-50">
       {/* Homepage Welcome Message */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center" style={{ transform: 'translateY(-25%)' }}>
