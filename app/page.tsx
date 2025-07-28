@@ -234,7 +234,7 @@ export default function HomePage() {
           {/* Mobile-only GitHub link */}
           <div className="sm:hidden mt-6 flex items-center justify-center">
             <a
-              href="https://github.com/vercel/v0-platform-starter"
+              href="https://github.com/vercel/v0-platform-api-demo"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-muted hover:bg-muted/80 text-muted-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors"
