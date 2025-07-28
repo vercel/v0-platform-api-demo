@@ -628,16 +628,6 @@ export default function PromptComponent({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* Desktop: v0.dev Link */}
-                        <a
-                          href={chatData?.url || 'https://v0.dev'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hidden sm:block text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
-                        >
-                          View on v0.dev
-                        </a>
-
                         {/* Button group with no gap */}
                         <div className="flex items-center">
                           {/* Single More Options Menu - Always show */}
@@ -655,8 +645,8 @@ export default function PromptComponent({
                               {/* Settings - Always available */}
                               <SettingsDialog />
 
-                              {/* View on v0.dev - only show on mobile, always available */}
-                              <DropdownMenuItem asChild className="sm:hidden">
+                              {/* View on v0.dev - available on both mobile and desktop */}
+                              <DropdownMenuItem asChild>
                                 <a
                                   href={chatData?.url || 'https://v0.dev'}
                                   target="_blank"
