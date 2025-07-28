@@ -43,6 +43,42 @@ interface Attachment {
   type?: string
 }
 
+// Image Preview Component
+interface ImagePreviewProps {
+  src: string
+  alt: string
+  isVisible: boolean
+  position: { x: number; y: number }
+}
+
+function ImagePreview({ src, alt, isVisible, position }: ImagePreviewProps) {
+  if (!isVisible) return null
+
+  return (
+    <div
+      className="fixed z-50 pointer-events-none"
+      style={{
+        left: position.x,
+        top: position.y,
+        transform: 'translate(-50%, -100%)',
+      }}
+    >
+      <div className="bg-white rounded-lg shadow-2xl border border-gray-200 p-2 max-w-xs">
+        <img
+          src={src}
+          alt={alt}
+          className="max-w-full max-h-48 object-contain rounded"
+          onError={(e) => {
+            // Hide preview if image fails to load
+            ;(e.target as HTMLElement).closest('[data-preview]')?.remove()
+          }}
+        />
+        <p className="text-xs text-gray-600 mt-1 truncate">{alt}</p>
+      </div>
+    </div>
+  )
+}
+
 interface PromptComponentProps {
   // Initial state
   initialPrompt?: string
@@ -114,6 +150,17 @@ export default function PromptComponent({
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isListening, setIsListening] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(false)
+  const [previewState, setPreviewState] = useState<{
+    isVisible: boolean
+    src: string
+    alt: string
+    position: { x: number; y: number }
+  }>({
+    isVisible: false,
+    src: '',
+    alt: '',
+    position: { x: 0, y: 0 },
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const recognitionRef = useRef<any>(null)
 
@@ -127,11 +174,11 @@ export default function PromptComponent({
       try {
         const savedPrompt = sessionStorage.getItem(PROMPT_STORAGE_KEY)
         const savedAttachments = sessionStorage.getItem(ATTACHMENTS_STORAGE_KEY)
-        
+
         if (savedPrompt && !initialPrompt) {
           setPrompt(savedPrompt)
         }
-        
+
         if (savedAttachments) {
           const parsedAttachments = JSON.parse(savedAttachments)
           setAttachments(parsedAttachments)
@@ -159,7 +206,10 @@ export default function PromptComponent({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem(ATTACHMENTS_STORAGE_KEY, JSON.stringify(attachments))
+        sessionStorage.setItem(
+          ATTACHMENTS_STORAGE_KEY,
+          JSON.stringify(attachments),
+        )
       } catch (error) {
         // Silently handle sessionStorage errors
         console.warn('Failed to save attachments to sessionStorage:', error)
@@ -385,6 +435,57 @@ export default function PromptComponent({
                     }}
                   />
 
+                  {/* Attachments display */}
+                  {attachments.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {attachments.map((attachment, index) => {
+                        const isImage = attachment.type?.startsWith('image/')
+
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700 relative"
+                            onMouseEnter={(e) => {
+                              if (isImage) {
+                                const rect =
+                                  e.currentTarget.getBoundingClientRect()
+                                setPreviewState({
+                                  isVisible: true,
+                                  src: attachment.url,
+                                  alt: attachment.name || 'Image attachment',
+                                  position: {
+                                    x: rect.left + rect.width / 2,
+                                    y: rect.top - 10,
+                                  },
+                                })
+                              }
+                            }}
+                            onMouseLeave={() => {
+                              if (isImage) {
+                                setPreviewState((prev) => ({
+                                  ...prev,
+                                  isVisible: false,
+                                }))
+                              }
+                            }}
+                          >
+                            <PaperclipIcon className="w-3 h-3" />
+                            <span className="truncate max-w-32">
+                              {attachment.name || 'Attachment'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeAttachment(index)}
+                              className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                              <XIcon className="w-3 h-3" />
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
                   <div className="relative">
                     {/* Input field */}
                     <textarea
@@ -488,30 +589,6 @@ export default function PromptComponent({
                       )}
                     </button>
                   </div>
-
-                  {/* Attachments display */}
-                  {attachments.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {attachments.map((attachment, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-700"
-                        >
-                          <PaperclipIcon className="w-3 h-3" />
-                          <span className="truncate max-w-32">
-                            {attachment.name || 'Attachment'}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeAttachment(index)}
-                            className="text-gray-400 hover:text-gray-600 transition-colors"
-                          >
-                            <XIcon className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
 
                   {/* Controls under input */}
                   <div className="mt-2 sm:mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
@@ -770,6 +847,14 @@ export default function PromptComponent({
           </div>
         </div>
       )}
+
+      {/* Image Preview */}
+      <ImagePreview
+        src={previewState.src}
+        alt={previewState.alt}
+        isVisible={previewState.isVisible}
+        position={previewState.position}
+      />
     </>
   )
 }
