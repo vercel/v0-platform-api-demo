@@ -118,3 +118,10 @@
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   }
 }
+
+/* Stack mobile deploy buttons vertically on very small screens */
+@media (max-width: 360px) {
+  .mobile-deploy-buttons {
+    flex-direction: column !important;
+  }
+}

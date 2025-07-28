@@ -207,7 +207,7 @@ export default function HomePage() {
           </p>
           
           {/* Mobile-only Deploy and GitHub links */}
-          <div className="sm:hidden mt-6 flex flex-col gap-3 items-center">
+          <div className="sm:hidden mt-6 flex flex-row gap-3 items-center justify-center flex-wrap mobile-deploy-buttons">
             <a
               href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fv0-platform-starter"
               target="_blank"
