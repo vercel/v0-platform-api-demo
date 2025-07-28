@@ -40,7 +40,7 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
 - **One-Click Deployment**: Deploy generated apps directly to Vercel
 - **File Attachments**: Upload images and files to enhance your prompts
 - **Voice Input**: Use speech-to-text for hands-free prompt creation
-- **Rate Limiting**: Built-in rate limiting (3 generations per 12 hours) to prevent abuse
+- **Rate Limiting**: Built-in rate limiting (3 AI generations per 12 hours) to prevent abuse
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Session Caching**: Improved performance with intelligent caching of projects and chats
 
@@ -71,9 +71,9 @@ A Next.js application showcasing the v0 Platform API. Build AI-powered apps with
 
 This application implements optional rate limiting to prevent abuse and ensure fair usage:
 
-- **Limit:** 3 new chat generations per 12 hours per IP address
-- **Scope:** Only applies to new chat creation (`v0.chats.create()`)
-- **Existing chats:** Continuing conversations with `v0.chats.sendMessage()` is unlimited
+- **Limit:** 3 AI generations per 12 hours per IP address
+- **What counts as 1 generation:** Each call to `v0.chats.create()` or `v0.chats.sendMessage()`
+- **Scope:** Applies to all AI generation requests regardless of chat type
 - **Implementation:** Uses Upstash Redis with a sliding window algorithm
 - **Optional:** If Upstash credentials are not provided, rate limiting is disabled
 - **Fallback:** If rate limiting service is unavailable, requests are allowed (fail-open strategy)
