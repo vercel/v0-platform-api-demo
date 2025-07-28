@@ -13,6 +13,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -292,41 +293,44 @@ export default function PromptComponent({
 
                         {/* Button group with no gap */}
                         <div className="flex items-center">
-                          {/* Single More Options Menu */}
-                          {showDropdowns && currentProjectId && (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 ml-2 sm:ml-0"
+                          {/* Single More Options Menu - Always show */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 ml-2 sm:ml-0"
+                              >
+                                <MoreVerticalIcon className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" side="top">
+                              {/* Settings - Always available */}
+                              <SettingsDialog />
+
+                              {/* View on v0.dev - only show on mobile, always available */}
+                              <DropdownMenuItem asChild className="sm:hidden">
+                                <a
+                                  href={chatData?.url || 'https://v0.dev'}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center"
                                 >
-                                  <MoreVerticalIcon className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" side="top">
-                                {/* Settings */}
-                                <SettingsDialog />
+                                  <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                  View on v0.dev
+                                </a>
+                              </DropdownMenuItem>
 
-                                {/* View on v0.dev - only show on mobile */}
-                                <DropdownMenuItem asChild className="sm:hidden">
-                                  <a
-                                    href={chatData?.url || 'https://v0.dev'}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center"
-                                  >
-                                    <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                    View on v0.dev
-                                  </a>
-                                </DropdownMenuItem>
-
-                                {/* Delete Chat */}
-                                {currentChatId &&
-                                  currentChatId !== 'new' &&
-                                  onDeleteChat && (
+                              {/* Delete Chat - Only show when we have project context and chat is loaded */}
+                              {showDropdowns &&
+                                currentProjectId &&
+                                currentChatId &&
+                                currentChatId !== 'new' &&
+                                onDeleteChat && (
+                                  <>
+                                    <DropdownMenuSeparator />
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <DropdownMenuItem
@@ -359,10 +363,10 @@ export default function PromptComponent({
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
                                     </AlertDialog>
-                                  )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          )}
+                                  </>
+                                )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
 
                           {/* Close button - only show on mobile */}
                           <Button
