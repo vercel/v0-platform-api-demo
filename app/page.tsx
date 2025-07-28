@@ -193,6 +193,18 @@ export default function HomePage() {
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
             What can I help you build?
           </h1>
+          <p className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto text-pretty">
+            This is a demo of the{' '}
+            <a 
+              href="https://v0.dev/docs/api/platform" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-black hover:text-gray-700 underline"
+            >
+              v0 Platform API
+            </a>
+            . Build your own AI app builder with programmatic access to v0's app generation pipeline.
+          </p>
         </div>
       </div>
 
