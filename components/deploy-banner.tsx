@@ -72,9 +72,6 @@ export default function DeployBanner() {
             <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
               <div className="flex flex-col gap-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <svg className="h-5 w-5" viewBox="0 0 76 76" fill="none">
-                    <path d="M38 1L74 74H2L38 1Z" fill="currentColor" />
-                  </svg>
                   <span className="font-semibold">v0 Platform API Demo</span>
                 </div>
                 <div className="text-sm text-muted-foreground">
