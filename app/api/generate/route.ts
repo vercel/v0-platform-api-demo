@@ -2,28 +2,6 @@ import { v0 } from 'v0-sdk'
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit, getUserIdentifier, getUserIP, associateProjectWithIP } from '@/lib/rate-limiter'
 
-// Helper function to sleep for a given number of milliseconds
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-// Helper function to execute v0 API calls with retry logic for 402 errors
-async function executeWithRetry<T>(apiCall: () => Promise<T>): Promise<T> {
-  try {
-    return await apiCall()
-  } catch (error: any) {
-    // Check if it's a 402 error that we should retry
-    if (error?.status === 402 || error?.response?.status === 402) {
-      // Wait 5 seconds before retrying
-      await sleep(5000)
-      
-      // Retry once
-      return await apiCall()
-    }
-    
-    // Re-throw other errors
-    throw error
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
     const {
@@ -72,34 +50,30 @@ export async function POST(request: NextRequest) {
     let response
 
     if (chatId) {
-      // Continue existing chat using sendMessage with retry logic
-      response = await executeWithRetry(() => 
-        v0.chats.sendMessage({
-          chatId: chatId,
-          message: message.trim(),
-          modelConfiguration: {
-            modelId: modelId,
-            imageGenerations: imageGenerations,
-            thinking: thinking,
-          },
-          ...(attachments.length > 0 && { attachments }),
-        })
-      )
+      // Continue existing chat using sendMessage
+      response = await v0.chats.sendMessage({
+        chatId: chatId,
+        message: message.trim(),
+        modelConfiguration: {
+          modelId: modelId,
+          imageGenerations: imageGenerations,
+          thinking: thinking,
+        },
+        ...(attachments.length > 0 && { attachments }),
+      })
     } else {
-      // Create new chat with retry logic
-      response = await executeWithRetry(() =>
-        v0.chats.create({
-          system: 'v0 MUST always generate code even if the user just says "hi" or asks a question. v0 MUST NOT ask the user to clarify their request.',
-          message: message.trim(),
-          modelConfiguration: {
-            modelId: modelId,
-            imageGenerations: imageGenerations,
-            thinking: thinking,
-          },
-          ...(projectId && { projectId }),
-          ...(attachments.length > 0 && { attachments }),
-        })
-      )
+      // Create new chat
+      response = await v0.chats.create({
+        system: 'v0 MUST always generate code even if the user just says "hi" or asks a question. v0 MUST NOT ask the user to clarify their request.',
+        message: message.trim(),
+        modelConfiguration: {
+          modelId: modelId,
+          imageGenerations: imageGenerations,
+          thinking: thinking,
+        },
+        ...(projectId && { projectId }),
+        ...(attachments.length > 0 && { attachments }),
+      })
 
       // If a project was created/returned, associate it with the user's IP
       if (response.projectId) {
