@@ -1,4 +1,4 @@
-// app/projects/[projectId]/components.tsx
+// app/server/projects/[projectId]/components.tsx
 
 'use client'
 

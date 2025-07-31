@@ -1,3 +1,5 @@
+// lib/hooks/useSettings.ts
+
 import { useState, useEffect } from 'react'
 
 export type ModelType = 'v0-1.5-sm' | 'v0-1.5-md' | 'v0-1.5-lg'

@@ -1,3 +1,5 @@
+// app/projects/[projectId]/page.tsx
+
 'use client'
 
 import { useEffect } from 'react'

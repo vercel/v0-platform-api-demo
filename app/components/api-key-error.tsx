@@ -1,9 +1,14 @@
+// components/api-key-error.tsx
 'use client'
 
 import { useState } from 'react'
 import { RefreshCw, ExternalLink, Key } from 'lucide-react'
 
-export default function ApiKeyError() {
+interface ApiKeyErrorProps {
+  error?: string
+}
+
+export default function ApiKeyError({ error }: ApiKeyErrorProps = {}) {
   const [isRetrying, setIsRetrying] = useState(false)
 
   const handleRetry = async () => {
@@ -12,6 +17,31 @@ export default function ApiKeyError() {
     setTimeout(() => {
       window.location.reload()
     }, 1000)
+  }
+
+  // Customize message based on error type
+  const getErrorMessage = () => {
+    switch (error) {
+      case 'API_KEY_MISSING':
+        return 'Your v0 API key is missing from the environment variables.'
+      case 'API_KEY_INVALID':
+        return 'Your v0 API key appears to be invalid or expired.'
+      case 'UNKNOWN_ERROR':
+        return 'There was an issue validating your API key.'
+      default:
+        return 'To use this app, you need to configure your v0 API key. You can get one from v0.dev and set it as an environment variable.'
+    }
+  }
+
+  const getTitle = () => {
+    switch (error) {
+      case 'API_KEY_INVALID':
+        return 'Invalid API Key'
+      case 'UNKNOWN_ERROR':
+        return 'API Key Error'
+      default:
+        return 'API Key Required'
+    }
   }
 
   return (
@@ -24,13 +54,12 @@ export default function ApiKeyError() {
 
         {/* Title */}
         <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          API Key Required
+          {getTitle()}
         </h1>
 
         {/* Description */}
         <p className="text-gray-600 mb-6 leading-relaxed">
-          To use this app, you need to configure your v0 API key. You can get
-          one from v0.dev and set it as an environment variable.
+          {getErrorMessage()}
         </p>
 
         {/* Instructions */}
@@ -97,7 +126,17 @@ export default function ApiKeyError() {
         <p className="text-xs text-gray-500 mt-6">
           Need help? Check the README.md file for detailed setup instructions.
         </p>
+
+        {/* Debug info in development */}
+        {process.env.NODE_ENV === 'development' && error && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-xs text-yellow-800 font-mono">
+              Debug: {error}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
 }
+

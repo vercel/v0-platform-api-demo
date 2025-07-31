@@ -1,8 +1,7 @@
-// app/components/settings-dialog.tsx
-
+// app/components/settings-dialog.tsx (optimized)
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -21,7 +20,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { DropdownMenuItem as DialogDropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { SettingsIcon, ChevronDownIcon, CheckIcon } from 'lucide-react'
-import { Settings, ModelType, useSettings } from '../../lib/hooks/useSettings'
+import { Settings, ModelType, useSettings } from '@/lib/hooks/useSettingsNew'
 
 interface SettingsDialogProps {
   trigger?: React.ReactNode
@@ -32,23 +31,35 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
   const [open, setOpen] = useState(false)
   const [tempSettings, setTempSettings] = useState<Settings>(settings)
 
-  const handleOpenChange = (newOpen: boolean) => {
+  const handleOpenChange = useCallback((newOpen: boolean) => {
     setOpen(newOpen)
     if (newOpen) {
       // Reset temp settings when opening
       setTempSettings(settings)
     }
-  }
+  }, [settings])
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     updateSettings(tempSettings)
     setOpen(false)
-  }
+  }, [tempSettings, updateSettings])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setTempSettings(settings)
     setOpen(false)
-  }
+  }, [settings])
+
+  const handleModelChange = useCallback((modelValue: ModelType) => {
+    setTempSettings(prev => ({ ...prev, model: modelValue }))
+  }, [])
+
+  const handleImageGenerationsChange = useCallback((checked: boolean) => {
+    setTempSettings(prev => ({ ...prev, imageGenerations: checked }))
+  }, [])
+
+  const handleThinkingChange = useCallback((checked: boolean) => {
+    setTempSettings(prev => ({ ...prev, thinking: checked }))
+  }, [])
 
   const modelOptions = [
     {
@@ -107,12 +118,7 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
                 {modelOptions.map((option) => (
                   <DropdownMenuItem
                     key={option.value}
-                    onClick={() =>
-                      setTempSettings({
-                        ...tempSettings,
-                        model: option.value,
-                      })
-                    }
+                    onClick={() => handleModelChange(option.value)}
                   >
                     <div className="flex items-center justify-between w-full">
                       <div className="flex flex-col">
@@ -143,12 +149,7 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
             </div>
             <Switch
               checked={tempSettings.imageGenerations}
-              onCheckedChange={(checked) =>
-                setTempSettings({
-                  ...tempSettings,
-                  imageGenerations: checked,
-                })
-              }
+              onCheckedChange={handleImageGenerationsChange}
             />
           </div>
 
@@ -162,12 +163,7 @@ export default function SettingsDialog({ trigger }: SettingsDialogProps) {
             </div>
             <Switch
               checked={tempSettings.thinking}
-              onCheckedChange={(checked) =>
-                setTempSettings({
-                  ...tempSettings,
-                  thinking: checked,
-                })
-              }
+              onCheckedChange={handleThinkingChange}
             />
           </div>
         </div>

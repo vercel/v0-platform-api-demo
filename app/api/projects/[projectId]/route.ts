@@ -1,3 +1,5 @@
+// app/api/projects/[projectId]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server'
 import { v0 } from 'v0-sdk'
 

@@ -1,3 +1,5 @@
+// app/api/chats/[chatId]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from 'v0-sdk'
 

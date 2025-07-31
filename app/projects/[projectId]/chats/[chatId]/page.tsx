@@ -1,13 +1,16 @@
+// app/projects/[projectId]/chats/[chatId]/page.tsx
+
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ProjectDropdown, ChatDropdown } from './components'
 import PromptComponent from '../../../../components/prompt-component'
 import ApiKeyError from '../../../../components/api-key-error'
 import { useApiValidation } from '../../../../../lib/hooks/useApiValidation'
 import { LoadingComponent } from '@/components/loading-component'
 import { IFrameComponent } from '@/components/iframe-component'
+import { useChatPolling } from '@/lib/hooks/useChatPolling'
+import { useDebugLogger } from '@/lib/hooks/useDebugLogger'
 
 export default function ChatPage() {
   const params = useParams()
@@ -27,6 +30,21 @@ export default function ChatPage() {
 
   // API validation on page load
   const { isValidating, showApiKeyError } = useApiValidation()
+  
+  // Debug logger
+  const { log, info, error: logError } = useDebugLogger({ componentName: 'ChatPage' })
+
+  // Chat polling hook
+  const { status: chatStatus, error: pollingError } = useChatPolling({
+    chatId: chatId && chatId !== 'new' && chatId !== 'new-chat' ? chatId : null,
+    enabled: !isValidating && !showApiKeyError,
+    onStatusChange: (status) => {
+      info(`Chat status changed to: ${status}`, { chatId, status })
+      if (status === 'failed' && !error) {
+        setError('Chat generation failed. Please try again.')
+      }
+    }
+  })
 
   // Track if user has selected "new" options in dropdowns
   const [selectedProjectId, setSelectedProjectId] = useState(projectId)
@@ -262,6 +280,7 @@ export default function ChatPage() {
 
   const loadChatData = async () => {
     try {
+      log(`Loading chat data for: ${chatId}`)
       const response = await fetch(`/api/chats/${encodeURIComponent(chatId)}`, {
         method: 'GET',
       })
@@ -269,6 +288,7 @@ export default function ChatPage() {
       if (response.ok) {
         const data = await response.json()
         setChatData(data)
+        info('Chat data loaded successfully', { chatId, hasDemo: !!data.demo, hasUrl: !!data.url })
 
         // Load the latest app if available
         if (data.demo) {
@@ -278,7 +298,7 @@ export default function ChatPage() {
         }
       }
     } catch (err) {
-      // Silently handle chat loading errors
+      logError('Failed to load chat data', err)
     }
   }
 
@@ -289,6 +309,7 @@ export default function ChatPage() {
   ) => {
     setIsLoading(true)
     setError(null)
+    log('Submitting prompt', { prompt: prompt.substring(0, 50), settings, attachmentCount: attachments?.length || 0 })
 
     try {
       const response = await fetch('/api/generate', {

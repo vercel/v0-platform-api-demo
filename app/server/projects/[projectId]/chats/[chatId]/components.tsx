@@ -1,4 +1,4 @@
-// app/projects/[projectId]/chats/[chatId]/components.tsx
+// app/server/projects/[projectId]/chats/[chatId]/components.tsx
 
 'use client'
 
@@ -107,10 +107,10 @@ export function ProjectDropdown({
     // Always navigate to the selected project page for consistent behavior across all pages
     if (projectId === 'new') {
       // For new project, redirect to homepage
-      router.push('/')
+      router.push('/server')
     } else if (projectId !== currentProjectId) {
       // For existing projects, always navigate to the project page
-      router.push(`/projects/${projectId}`)
+      router.push(`/server/projects/${projectId}`)
     }
   }
 
@@ -232,7 +232,7 @@ export function ChatDropdown({
       return
     } else if (chatId !== currentChatId) {
       // Navigate to existing chat
-      router.push(`/projects/${projectId}/chats/${chatId}`)
+      router.push(`/server/projects/${projectId}/chats/${chatId}`)
     }
 
     // Notify parent of selection change for existing chats
@@ -271,7 +271,7 @@ export function ChatDropdown({
       if (response.ok) {
         const forkedChat = await response.json()
         // Navigate to the new forked chat
-        router.push(`/projects/${projectId}/chats/${forkedChat.id}`)
+        router.push(`/server/projects/${projectId}/chats/${forkedChat.id}`)
       }
     } catch (error) {
       // Silently handle fork errors
