@@ -47,7 +47,7 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="theme"
         >
-          <DeployBanner />
+          {/* <DeployBanner /> */}
           {children}
         </ThemeProvider>
       </body>

@@ -14,10 +14,11 @@ export async function GET(request: NextRequest) {
     // Get user's project IDs from Redis
     const userProjectIds = await getUserProjects(userIP)
     
-    // Filter projects to only include those owned by this user
-    const userProjects = allProjects.filter((project: any) => 
-      userProjectIds.includes(project.id)
-    )
+    // If rate limiting is disabled (userProjectIds is null), return all projects
+    // Otherwise, filter projects to only include those owned by this user
+    const userProjects = userProjectIds === null 
+      ? allProjects 
+      : allProjects.filter((project: any) => userProjectIds.includes(project.id))
     
     return NextResponse.json({ data: userProjects })
   } catch (error) {

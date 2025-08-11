@@ -6,6 +6,11 @@ const upstashUrl = process.env.KV_REST_API_URL
 const upstashToken = process.env.KV_REST_API_TOKEN
 const isRateLimitingEnabled = upstashUrl && upstashToken && upstashUrl.trim() !== '' && upstashToken.trim() !== ''
 
+// Export function to check if rate limiting is enabled
+export function isRateLimitingEnabledForUser(): boolean {
+  return isRateLimitingEnabled
+}
+
 // Create Redis instance and rate limiter only if credentials are available
 let generationRateLimit: Ratelimit | null = null
 let redis: Redis | null = null
@@ -51,7 +56,7 @@ export function getUserIP(request: Request): string {
 
 // Function to associate an IP with a project
 export async function associateProjectWithIP(projectId: string, userIP: string): Promise<void> {
-  if (!redis) return // Skip if Redis is not available
+  if (!isRateLimitingEnabled || !redis) return // Skip if rate limiting is disabled or Redis is not available
   
   try {
     // Store only user_projects mapping
@@ -62,15 +67,15 @@ export async function associateProjectWithIP(projectId: string, userIP: string):
 }
 
 // Function to get user's projects
-export async function getUserProjects(userIP: string): Promise<string[]> {
-  if (!redis) return [] // Return empty if Redis is not available
+export async function getUserProjects(userIP: string): Promise<string[] | null> {
+  if (!redis) return null // Return null if Redis is not available (indicates no filtering should be applied)
   
   try {
     const projectIds = await redis.smembers(`user_projects:${userIP}`)
     return projectIds as string[]
   } catch (error) {
     console.warn('Failed to get user projects:', error)
-    return []
+    return null // Return null on error to disable filtering
   }
 }
 
